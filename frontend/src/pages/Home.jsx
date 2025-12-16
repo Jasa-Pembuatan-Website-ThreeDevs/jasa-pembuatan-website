@@ -14,11 +14,10 @@ export default function Home() {
 
                         <div className="text-lg text-gray-700 mb-8 max-w-2xl">
                             <p className="mb-4 text-center text-sm">
-                                Temper non-pleasant common dangers kept best wishes. With a strong, dim
-                                mirazena young bikini bear in
+                            Transformasikan ide Anda menjadi website profesional yang menarik pengunjung dan meningkatkan penjualan. Desain responsif, SEO-ready, dan dukungan cepat — mulai sekarang, tampilkan bisnis Anda di level selanjutnya.
                             </p>
                             <p className="italic text-center text-sm">
-                                Your sense of joy on all! — we get you gorgeous!
+                               -Three Developer-
                             </p>
                         </div>
 
