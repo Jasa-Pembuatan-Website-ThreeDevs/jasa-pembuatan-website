@@ -18,7 +18,7 @@ export default function Navbar() {
         >
             <div className="flex justify-between items-center">
                 <div className="text-2xl font-bold tracking-wide text-gray-800">
-                    WebService
+                    ThreeDev
                 </div>
 
                 <nav className="hidden md:flex items-center space-x-6">
