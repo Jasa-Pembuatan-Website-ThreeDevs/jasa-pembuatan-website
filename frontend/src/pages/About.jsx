@@ -17,22 +17,22 @@ export default function About() {
                         <div className="w-24 h-1 bg-indigo-500 rounded-full mb-12"></div>
 
                         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
-                            Tempat Nongkrong yang Lo Cari
+                            Kenapa Memilih Kami?
                         </h2>
 
                         <div className="text-gray-700 space-y-6 mb-10 max-w-2xl">
                             <p className="text-lg leading-relaxed">
-                                Kuyu Muramiter bulam cumra tempat yapar kısas. Kita adalah "thiraj zhan" — tempat ardaya resimli alan kamer alınması bu fata leyip protokolü, rapund sertak, açık vadalar mevifin dünyan mesniğik koşu temat.
+                                Kami adalah tim siswa SMKS Muhammadiyah 1 Genteng yang fokus pada hasil nyata — menguasai frontend dan backend, serta mampu mengintegrasikan teknologi AI untuk mempercepat dan mempermudah proses pembuatan website. Kami mengutamakan komunikasi yang jelas, solusi yang mudah dipelihara, dan penyelesaian tepat waktu. Percayakan proyek Anda pada tim muda yang profesional, bertanggung jawab, dan hasil-orientasi.
                             </p>
 
                             <p className="text-lg leading-relaxed">
-                                Dengari iristetiz cazı, VAT-kentang, tüm kurulu yang mırak, kita alap jadı vermalı kadra bu bazı onaylangız. Ebrahimlerini, umra temen, alan menfing suna klam — verrara verlenme dil etilir.
+                                Dengan pengalaman dalam berbagai proyek, kami memahami kebutuhan bisnis modern dan siap membantu Anda mencapai tujuan digital Anda. Mari bekerja sama untuk menciptakan website yang tidak hanya menarik secara visual, tetapi juga fungsional dan efektif dalam mendukung pertumbuhan bisnis Anda.
                             </p>
                         </div>
 
                         <button className="group flex items-center space-x-3 text-indigo-600 hover:text-indigo-800 font-bold text-lg transition-colors">
                             <span className="border-b-2 border-indigo-600 group-hover:border-indigo-800 pb-1">
-                                Lihaf Faallha
+                                Lihat Portfolio
                             </span>
                             <span className="transform group-hover:translate-x-2 transition-transform">
                                 →
