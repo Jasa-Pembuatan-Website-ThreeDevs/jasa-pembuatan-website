@@ -3,37 +3,16 @@ import React from 'react';
 const portfolioProjects = [
   {
     id: 1,
-    title: "E-Commerce Platform Modern",
+    title: "Sekolah Sepak Bola",
     category: "Website Development",
-    description: "Platform e-commerce dengan fitur lengkap untuk retail online, dilengkapi dashboard admin, sistem pembayaran, dan analitik real-time.",
+    description: "Platform Sekolah Sepak Bola Digital dengan fitur lengkap Dan Fungsional, dilengkapi dashboard admin, sistem pembayaran.",
     image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    technologies: ["React", "Node.js", "MongoDB", "Express", "Tailwind CSS"],
+    technologies: ["React", "Node.js", "Sqlite", "Laravel", "Tailwind CSS"],
     demoUrl: "#",
     detailsUrl: "#",
     featured: true
   },
-  {
-    id: 2,
-    title: "Mobile App Fintech",
-    category: "Mobile Application",
-    description: "Aplikasi mobile banking dengan fitur transfer, investasi, dan financial planning dengan keamanan tingkat tinggi.",
-    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    technologies: ["React Native", "Firebase", "Redux", "TypeScript"],
-    demoUrl: "#",
-    detailsUrl: "#",
-    featured: false
-  },
-  {
-    id: 3,
-    title: "Dashboard Analytics Enterprise",
-    category: "Web Application",
-    description: "Dashboard analitik dengan visualisasi data real-time untuk monitoring performa bisnis dan pengambilan keputusan.",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    technologies: ["Vue.js", "D3.js", "Python", "PostgreSQL"],
-    demoUrl: "#",
-    detailsUrl: "#",
-    featured: false
-  }
+
 ];
 
 export default function Portfolio() {

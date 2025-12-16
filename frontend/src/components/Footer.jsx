@@ -36,14 +36,14 @@ const contactInfo = [
     },
     {
         icon: "fa-solid fa-phone",
-        content: "+62 123 456 7890",
-        href: "tel:+621234567890",
+        content: "+62 895368 757054",
+        href: "tel:+62895368757054",
         isLink: true
     },
     {
         icon: "fa-solid fa-envelope",
-        content: "info@thirdplace.com",
-        href: "mailto:info@thirdplace.com",
+        content: "info@threedevs.com",
+        href: "mailto:info@threedevs.com",
         isLink: true
     },
 ];
@@ -68,9 +68,9 @@ export default function Footer() {
                         <div className="space-y-5">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white font-bold text-xl">
-                                    TP
+                                    TD
                                 </div>
-                                <span className="text-2xl font-bold text-gray-900">THIRDPLACE</span>
+                                <span className="text-2xl font-bold text-gray-900">ThreeDevs</span>
                             </div>
                             <p className="text-gray-600 leading-relaxed">
                                 Your perfect space between work and home. Creating meaningful experiences since 2020.
@@ -173,7 +173,7 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="py-6 border-t border-gray-100">
                     <div className="text-gray-500 text-sm">
-                        &copy; {currentYear} THIRDPLACE. All rights reserved.
+                        &copy; {currentYear} ThreeDevs. All rights reserved.
                     </div>
 
                 </div>

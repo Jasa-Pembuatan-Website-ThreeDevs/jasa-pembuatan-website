@@ -8,7 +8,7 @@ export default function Home() {
             <section id="home" className="container mx-auto px-4 py-8 md:py-10">
                 <div className="flex flex-col lg:flex-row items-center">
                     <div className="flex flex-col items-center mb-10 w-full lg:mb-0">
-                        <h1 className="text-4xl md:text-5xl lg:text-5xl lg:max-w-sm lg:text-center font-semibold text-gray-900 leading-tight mb-6">
+                        <h1 className="text-4xl md:text-5xl lg:text-5xl lg:max-w-sm lg:text-center font-semibold text-gray-900 leading-tight mb-6 mt-12">
                             Halo para <span className="text-indigo-600">pengunjung</span>
                         </h1>
 
