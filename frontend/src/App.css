@@ -4,15 +4,54 @@
 }
 
 .animate-marquee {
-  animation: marquee 20s linear infinite;
+  animation: marquee linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
 }
 
 @keyframes marquee {
-  from {
+  0% {
     transform: translateX(0);
   }
-
-  to {
+  100% {
     transform: translateX(-50%);
   }
+}
+
+/* Additional smooth scrolling improvements */
+.marquee-container {
+  overflow-x: hidden;
+  position: relative;
+}
+
+.marquee-container::-webkit-scrollbar{
+  display: none;
+}
+.marquee-track {
+  display: flex;
+  gap: 70px;
+  align-items: center;
+  min-width: max-content;
+  /* Pastikan track memiliki cukup ruang untuk dua set elemen */
+  padding-right: 16px;
+}
+
+/* Alternative seamless marquee approach */
+@keyframes marquee-seamless {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% + 16px));
+  }
+}
+
+/* For even smoother animation, use this alternative */
+.marquee-track.smooth {
+  animation: marquee-seamless linear infinite;
 }

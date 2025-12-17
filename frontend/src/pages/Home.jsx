@@ -1,8 +1,11 @@
 
 import React from 'react';
+import { useSmoothScroll } from '../hooks/useSmoothScroll';
 import Marque from '../components/marque-home';
 
 export default function Home() {
+    useSmoothScroll();
+
     return (
         <div className="min-h-screen bg-white pt-16">
             <section id="home" className="container mx-auto px-4 py-8 md:py-10">
@@ -22,12 +25,12 @@ export default function Home() {
                         </div>
 
                         <div className="flex flex-wrap gap-4 mb-15">
-                            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-8 rounded-full transition-colors shadow-md">
+                            <a href="#services" className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-8 rounded-full transition-colors shadow-md">
                                 Get Started
-                            </button>
-                            <button className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-2 px-8 rounded-full transition-colors">
+                            </a>
+                            <a href="#about" className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-2 px-8 rounded-full transition-colors">
                                 Learn More
-                            </button>
+                            </a>
                         </div>
 
                         <Marque />

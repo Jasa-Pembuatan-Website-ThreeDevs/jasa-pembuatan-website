@@ -18,7 +18,7 @@ return new class extends Migration
         $table->string('email');
         $table->string('no_hp');
         $table->string('paket_layanan'); 
-        $table->decimal('total_harga', 15, 2); 
+        $table->integer('total_harga'); 
         $table->string('status')->default('pending'); 
         $table->string('snap_token')->nullable(); 
         $table->timestamps();

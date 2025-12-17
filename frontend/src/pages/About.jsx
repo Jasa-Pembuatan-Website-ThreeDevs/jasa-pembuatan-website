@@ -30,14 +30,14 @@ export default function About() {
                             </p>
                         </div>
 
-                        <button className="group flex items-center space-x-3 text-indigo-600 hover:text-indigo-800 font-bold text-lg transition-colors">
+                        <a href="#portfolio" className="group flex items-center space-x-3 text-indigo-600 hover:text-indigo-800 font-bold text-lg transition-colors">
                             <span className="border-b-2 border-indigo-600 group-hover:border-indigo-800 pb-1">
                                 Lihat Portfolio
                             </span>
                             <span className="transform group-hover:translate-x-2 transition-transform">
                                 →
                             </span>
-                        </button>
+                        </a>
 
                     </div>
 
