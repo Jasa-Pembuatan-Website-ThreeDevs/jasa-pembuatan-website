@@ -64,18 +64,18 @@ export default function Footer() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Main Footer Content: 4 Columns */}
-                <div className="py-12 md:py-16">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+                <div className="py-8 sm:py-10 md:py-16">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12">
 
                         {/* 1. Brand Column */}
-                        <div className="space-y-5">
+                        <div className="space-y-4 sm:space-y-5">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white font-bold text-xl">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white font-bold text-lg sm:text-xl">
                                     TD
                                 </div>
-                                <span className="text-2xl font-bold text-gray-900">ThreeDevs</span>
+                                <span className="text-xl sm:text-2xl font-bold text-gray-900">ThreeDevs</span>
                             </div>
-                            <p className="text-gray-600 leading-relaxed">
+                            <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
                                 Your perfect space between work and home. Creating meaningful experiences since 2020.
                             </p>
 
@@ -98,7 +98,7 @@ export default function Footer() {
 
                         {/* 2. Quick Links (Menggunakan .map) */}
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-6">Quick Links</h3>
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Quick Links</h3>
                             <ul className="space-y-4">
                                 {quickLinks.map((link) => (
                                     <li key={link.name}>
@@ -116,7 +116,7 @@ export default function Footer() {
 
                         {/* 3. Services (Menggunakan .map) */}
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-6">Our Services</h3>
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Our Services</h3>
                             <ul className="space-y-4">
                                 {ourServices.map((service) => (
                                     <li key={service.name}>
@@ -134,7 +134,7 @@ export default function Footer() {
 
                         {/* 4. Contact Info & Newsletter */}
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-6">Get in Touch</h3>
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Get in Touch</h3>
                             <ul className="space-y-4">
                                 {contactInfo.map((item, index) => (
                                     <li key={index} className="flex items-start gap-3">

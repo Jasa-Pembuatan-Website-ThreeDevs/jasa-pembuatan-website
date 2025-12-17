@@ -49,7 +49,7 @@ export default function Faq() {
 
             <div className="container mx-auto px-6 py-12 md:py-24 relative z-10">
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4 text-center">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4 text-center">
                         Pertanyaan yang <span className="text-indigo-600">Sering Diajukan</span>
                     </h1>
 
