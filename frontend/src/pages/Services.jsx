@@ -1,6 +1,6 @@
 const packages = [
   {
-    name: "Paket Lite",
+    name: "Paket Tiny",
     badge: "Paling Populer",
     price: "Rp 299",
     desc: "Solusi ideal untuk bisnis kecil dan pemula yang ingin memulai dengan biaya terjangkau.",
@@ -10,11 +10,12 @@ const packages = [
       "Hosting 1GB",
       "Support 24/7",
       "SSL Certificate",
+      "Revisi Desain 2 Kali",
     ],
     highlight: false,
   },
   {
-    name: "Paket Pro",
+    name: "Paket Medium",
     badge: "TERLARIS",
     price: "Rp 699",
     desc: "Solusi lengkap untuk bisnis menengah dengan fitur advanced dan performa optimal.",
@@ -25,11 +26,12 @@ const packages = [
       "Email Profesional",
       "Analytics Dashboard",
       "Integrasi E-commerce",
+      "Revisi Desain 2 Kali",
     ],
     highlight: true,
   },
   {
-    name: "Paket Advance",
+    name: "Paket Pro+",
     badge: "",
     price: "Rp 1.499",
     desc: "Solusi premium untuk perusahaan besar dengan kebutuhan kompleks dan skalabilitas tinggi.",
@@ -41,6 +43,7 @@ const packages = [
       "Priority Support",
       "Custom Development",
       "Dedicated Account Manager",
+      "Revisi Desain 2 Kali",
     ],
     highlight: false,
   },

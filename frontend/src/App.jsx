@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Services from './pages/Services'
 import Portfolio from './pages/Portfolio'
+import ContactPage from './pages/Contact'
 import { Routes, Route } from "react-router-dom";
 import axios from 'axios';
 import MaintenancePage from "./components/MaintenancePage"; // <--- IMPORT DISINI
@@ -75,6 +76,7 @@ function App() {
       <About />
       <Services />
       <Portfolio />
+      <ContactPage />
       <Footer />
       
     </>
