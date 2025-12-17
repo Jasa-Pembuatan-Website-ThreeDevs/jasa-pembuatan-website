@@ -2,6 +2,7 @@
 import React from 'react';
 import { useSmoothScroll } from '../hooks/useSmoothScroll';
 import Marque from '../components/marque-home';
+import Chatbot from '../components/Chatbot';
 
 export default function Home() {
     useSmoothScroll();
@@ -11,12 +12,12 @@ export default function Home() {
             <section id="home" className="container mx-auto px-4 py-8 md:py-10">
                 <div className="flex flex-col lg:flex-row items-center">
                     <div className="flex flex-col items-center mb-10 w-full lg:mb-0">
-                        <h1 className="text-4xl md:text-5xl lg:text-5xl lg:max-w-sm lg:text-center font-semibold text-gray-900 leading-tight mb-6 mt-12">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl max-w-2xl lg:max-w-sm text-center font-semibold text-gray-900 leading-tight mb-6 mt-12">
                             Halo para <span className="text-indigo-600">pengunjung</span>
                         </h1>
 
-                        <div className="text-lg text-gray-700 mb-8 max-w-2xl">
-                            <p className="mb-4 text-center text-sm">
+                        <div className="text-base sm:text-lg text-gray-700 mb-8 max-w-2xl">
+                            <p className="mb-4 text-center text-sm sm:text-base">
                             Transformasikan ide Anda menjadi website profesional yang menarik pengunjung dan meningkatkan penjualan. Desain responsif, SEO-ready, dan dukungan cepat — mulai sekarang, tampilkan bisnis Anda di level selanjutnya.
                             </p>
                             <p className="italic text-center text-sm">
@@ -24,11 +25,11 @@ export default function Home() {
                             </p>
                         </div>
 
-                        <div className="flex flex-wrap gap-4 mb-15">
-                            <a href="#services" className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-8 rounded-full transition-colors shadow-md">
+                        <div className="flex flex-wrap gap-4 justify-center mb-10">
+                            <a href="#services" className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 sm:px-8 rounded-full transition-colors shadow-md">
                                 Get Started
                             </a>
-                            <a href="#about" className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-2 px-8 rounded-full transition-colors">
+                            <a href="#about" className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-2 px-6 sm:px-8 rounded-full transition-colors">
                                 Learn More
                             </a>
                         </div>
@@ -39,6 +40,7 @@ export default function Home() {
                 </div>
             </section>
             
+            <Chatbot />
         </div>
     );
 };
