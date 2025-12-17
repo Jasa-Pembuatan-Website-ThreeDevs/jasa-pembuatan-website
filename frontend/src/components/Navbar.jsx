@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useSmoothScroll } from "../hooks/useSmoothScroll";
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
+    useSmoothScroll();
 
     useEffect(() => {
         const onScroll = () => {
@@ -47,7 +49,7 @@ export default function Navbar() {
 
                     {/* CTA Button */}
                     <a
-                        href="#order"
+                        href="/order"
                         className="group flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-1.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
                     >
                         <div className="w-7 h-7 flex items-center justify-center rounded-full bg-white/20">

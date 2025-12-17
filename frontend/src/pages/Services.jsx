@@ -1,3 +1,6 @@
+import React from 'react';
+import { useSmoothScroll } from '../hooks/useSmoothScroll';
+
 const packages = [
   {
     name: "Paket Tiny",
@@ -50,6 +53,8 @@ const packages = [
 ];
 
 export default function Services() {
+  useSmoothScroll();
+
   return (
     <section id="services" className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4">

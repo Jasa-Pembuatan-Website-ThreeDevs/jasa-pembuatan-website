@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSmoothScroll } from '../hooks/useSmoothScroll';
 // Asumsi Font Awesome diimpor atau ditambahkan ke proyek Anda (misalnya melalui CDN atau paket)
 
 // --- Data Struktur Tautan ---
@@ -8,6 +9,7 @@ const quickLinks = [
     { name: "About Us", href: "#" },
     { name: "Services", href: "#" },
     { name: "Portfolio", href: "#" },
+    { name: "FAQ", href: "/faq" },
     { name: "Contact", href: "#" },
 ];
 
@@ -50,6 +52,7 @@ const contactInfo = [
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    useSmoothScroll();
 
     // Fungsi untuk kembali ke atas halaman
     const scrollToTop = () => {

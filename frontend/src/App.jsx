@@ -7,6 +7,7 @@ import About from './pages/About'
 import Services from './pages/Services'
 import Portfolio from './pages/Portfolio'
 import ContactPage from './pages/Contact'
+import Faq from './pages/Faq'
 import { Routes, Route } from "react-router-dom";
 import axios from 'axios';
 import MaintenancePage from "./components/MaintenancePage"; // <--- IMPORT DISINI
@@ -67,18 +68,23 @@ function App() {
     );
   }
   return (
-    <>
-    <Routes>
+   <>
+      <Routes>
         <Route path="/order" element={<OrderPage />} />
+        <Route path="/faq" element={<Faq />} />
+
+        <Route path="/" element={
+          <>
+            <Navbar />
+            <Home />
+            <About />
+            <Services />
+            <Portfolio />
+            <ContactPage />
+            <Footer />
+          </>
+        } />
       </Routes>
-      <Navbar />
-      <Home />
-      <About />
-      <Services />
-      <Portfolio />
-      <ContactPage />
-      <Footer />
-      
     </>
   )
 }

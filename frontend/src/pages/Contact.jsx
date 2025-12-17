@@ -88,6 +88,7 @@ Mohon informasi lebih lanjut mengenai layanan Anda. Terima kasih!`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+      <section id="contact">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -388,6 +389,7 @@ Mohon informasi lebih lanjut mengenai layanan Anda. Terima kasih!`;
           </div>
         </div>
       </div>
+      </section>
     </div>
   );
 };
