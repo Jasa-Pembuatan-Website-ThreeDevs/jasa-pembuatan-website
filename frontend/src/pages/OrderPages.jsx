@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const OrderPage = () => {
   // State untuk form
@@ -7,8 +8,8 @@ const OrderPage = () => {
     nama: "",
     email: "",
     no_hp: "",
-    paket: "Landing Page", // Default value
-    harga: 1500000, // Harga default
+    paket: "Paket Tiny", // Default value
+    harga: 299000, // Harga default
   });
 
   // State untuk loading
@@ -16,9 +17,9 @@ const OrderPage = () => {
 
   // Daftar Paket (Bisa juga ambil dari API)
   const listPaket = [
-    { nama: "Landing Page", harga: 1500000 },
-    { nama: "Company Profile", harga: 3500000 },
-    { nama: "Toko Online", harga: 5000000 },
+    { nama: "Paket Tiny", harga: 299000 },
+    { nama: "Paket Medium", harga: 699000 },
+    { nama: "Paket Pro+", harga: 1499000 },
   ];
 
   // Handle ganti input
@@ -36,6 +37,42 @@ const OrderPage = () => {
     });
   };
 
+  // Beautiful Navbar Component matching existing design
+  const Navbar = () => (
+    <header className="fixed top-0 left-0 w-full z-[50] px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 bg-white shadow-md">
+      <div className="flex justify-between items-center">
+        <div className="text-xl sm:text-2xl font-bold tracking-wide text-gray-800">
+          ThreeDev
+        </div>
+
+        <nav className="hidden md:flex items-center space-x-4 sm:space-x-6">
+          {[
+            { icon: "fa-house", text: "Home", href: "/" },
+            { icon: "fa-circle-info", text: "About", href: "/#about" },
+            { icon: "fa-dollar", text: "Services", href: "/#services" },
+            { icon: "fa-briefcase", text: "Portfolio", href: "/#portfolio" },
+            { icon: "fa-envelope", text: "Contact", href: "/#contact" },
+            { icon: "fa-shopping-cart", text: "Order", href: "/order" }
+          ].map((item, index) => (
+            <a
+              key={index}
+              href={item.href}
+              className="group relative px-4 py-1 mx-1 rounded-full transition-all duration-300"
+            >
+              <div className="flex items-center gap-2">
+                <i className={`fa-solid ${item.icon} text-xs text-gray-500 group-hover:text-indigo-600 transition-colors`}></i>
+                <span className="text-sm font-medium text-gray-700 group-hover:text-indigo-600 transition-colors">
+                  {item.text}
+                </span>
+              </div>
+              <div className="absolute inset-0 bg-indigo-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+            </a>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+
   // === FUNGSI UTAMA BAYAR ===
   const handleCheckout = async (e) => {
     e.preventDefault();
@@ -44,30 +81,48 @@ const OrderPage = () => {
     try {
       // 1. Kirim data ke Laravel
       // Pastikan URL API sesuai dengan backend kalian
-      const response = await axios.post("http://localhost:8000/api/payment", formData);
+      const response = await axios.post("http://localhost:8000/api/payment", {
+        ...formData,
+        harga: Number(formData.harga) // Pastikan harga dikirim sebagai number
+      });
+      
+      console.log("API Response:", response.data);
+      
       const snapToken = response.data.token;
 
       // 2. Munculkan Popup Midtrans
       if (window.snap) {
-        window.snap.pay(snapToken, {
-          onSuccess: function (result) {
-            alert("Pembayaran Berhasil! Tim kami akan segera menghubungi Anda.");
-            console.log(result);
-            // Disini bisa redirect ke halaman "Success Page"
-            // window.location.href = "/sukses";
-          },
-          onPending: function (result) {
-            alert("Menunggu Pembayaran...");
-            console.log(result);
-          },
-          onError: function (result) {
-            alert("Pembayaran Gagal/Dibatalkan.");
-            console.log(result);
-          },
-          onClose: function () {
-            alert("Anda menutup popup tanpa menyelesaikan pembayaran.");
-          },
-        });
+        // Check if this is a mock token (using the is_mock flag from backend)
+        if (response.data.is_mock) {
+          // This is a mock token, show a message instead of trying to use it
+          alert("Payment system is in test mode. Order created successfully! Order ID: " + response.data.redirect_url.split('/').pop());
+          console.log("Mock payment token (not real):", snapToken);
+        } else {
+          // This should be a real Midtrans token
+          window.snap.pay(snapToken, {
+            onSuccess: function (result) {
+              alert("Pembayaran Berhasil! Tim kami akan segera menghubungi Anda.");
+              console.log(result);
+              // Disini bisa redirect ke halaman "Success Page"
+              // window.location.href = "/sukses";
+            },
+            onPending: function (result) {
+              alert("Menunggu Pembayaran...");
+              console.log(result);
+            },
+            onError: function (result) {
+              alert("Pembayaran Gagal/Dibatalkan.");
+              console.log(result);
+            },
+            onClose: function () {
+              alert("Anda menutup popup tanpa menyelesaikan pembayaran.");
+            },
+          });
+        }
+      } else {
+        // Jika snap tidak tersedia (untuk testing)
+        alert("Snap tidak tersedia. Token: " + snapToken);
+        console.log("Mock payment token:", snapToken);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -78,90 +133,160 @@ const OrderPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-10 px-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Form Order Website
-        </h2>
-
-        <form onSubmit={handleCheckout} className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <Navbar />
+      <div className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl w-full mx-auto">
+          {/* Decorative background elements */}
+          <div className="absolute top-20 left-10 w-32 h-32 bg-indigo-200 rounded-full opacity-50"></div>
+          <div className="absolute top-40 right-10 w-24 h-24 bg-purple-200 rounded-full opacity-50"></div>
           
-          {/* Input Nama */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-            <input
-              type="text"
-              name="nama"
-              required
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Contoh: Budi Santoso"
-              onChange={handleChange}
-            />
-          </div>
+          <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 sm:p-8 lg:p-10">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                Form Order Website
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base">
+                Isi data Anda dan pilih paket yang sesuai
+              </p>
+            </div>
 
-          {/* Input Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              required
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder="budi@email.com"
-              onChange={handleChange}
-            />
-          </div>
+          <form onSubmit={handleCheckout} className="space-y-6">
+            
+            {/* Input Nama */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i className="fa-solid fa-user text-gray-400"></i>
+                </div>
+                <input
+                  type="text"
+                  name="nama"
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 group-hover:border-indigo-300"
+                  placeholder="Masukkan nama lengkap Anda"
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
 
-          {/* Input No HP */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">No. WhatsApp</label>
-            <input
-              type="number"
-              name="no_hp"
-              required
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              placeholder="08123456789"
-              onChange={handleChange}
-            />
-          </div>
+            {/* Input Email */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i className="fa-solid fa-envelope text-gray-400"></i>
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 group-hover:border-indigo-300"
+                  placeholder="contoh@email.com"
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
 
-          {/* Pilih Paket */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Pilih Paket</label>
-            <select
-              name="paket"
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              onChange={handlePaketChange}
-            >
-              {listPaket.map((p) => (
-                <option key={p.nama} value={p.nama}>
-                  {p.nama}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Input No HP */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">No. WhatsApp</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i className="fa-brands fa-whatsapp text-gray-400"></i>
+                </div>
+                <input
+                  type="tel"
+                  name="no_hp"
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 group-hover:border-indigo-300"
+                  placeholder="+62 812 3456 7890"
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
 
-          {/* Tampilan Total Harga */}
-          <div className="bg-blue-50 p-4 rounded-lg flex justify-between items-center border border-blue-100">
-            <span className="text-blue-700 font-medium">Total Tagihan:</span>
-            <span className="text-xl font-bold text-blue-800">
-              Rp {formData.harga.toLocaleString("id-ID")}
-            </span>
-          </div>
+            {/* Pilih Paket */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Pilih Paket</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i className="fa-solid fa-box text-gray-400"></i>
+                </div>
+                <select
+                  name="paket"
+                  className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 group-hover:border-indigo-300 appearance-none bg-white"
+                  onChange={handlePaketChange}
+                >
+                  {listPaket.map((p) => (
+                    <option key={p.nama} value={p.nama}>
+                      {p.nama} - Rp {p.harga.toLocaleString('id-ID')}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <i className="fa-solid fa-chevron-down text-gray-400"></i>
+                </div>
+              </div>
+            </div>
 
-          {/* Tombol Bayar */}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 px-4 rounded-lg text-white font-bold transition duration-200 
-              ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"}`}
-          >
-            {loading ? "Memproses..." : "Bayar Sekarang"}
-          </button>
-        </form>
+            {/* Tampilan Total Harga */}
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <i className="fa-solid fa-tag text-indigo-600"></i>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-600">Total Tagihan</span>
+                    <p className="text-xs text-gray-500">Termasuk semua fitur paket</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-bold text-gray-900">
+                    Rp {Number(formData.harga).toLocaleString("id-ID")}
+                  </span>
+                  <p className="text-xs text-gray-500">Harga final</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tombol Bayar */}
+            <div className="space-y-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-4 px-6 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${loading 
+                  ? "bg-gray-400 cursor-not-allowed" 
+                  : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl"}`}
+              >
+                <div className="flex items-center justify-center space-x-3">
+                  <i className={`fa-solid ${loading ? "fa-spinner fa-spin" : "fa-credit-card"}`}></i>
+                  <span className="text-lg">{loading ? "Memproses..." : "Bayar Sekarang"}</span>
+                </div>
+                {!loading && (
+                  <div className="text-xs opacity-80 mt-1">Proses pembayaran aman dan cepat</div>
+                )}
+              </button>
+              
+              <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                <div className="flex items-center space-x-2">
+                  <i className="fa-solid fa-shield-alt text-green-500"></i>
+                  <span>Aman & Terpercaya</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <i className="fa-solid fa-lock text-blue-500"></i>
+                  <span>Enkripsi SSL</span>
+                </div>
+              </div>
+            </div>
+          </form>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default OrderPage;
