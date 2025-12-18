@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center px-4 py-16 overflow-x-hidden
+">
       
       {/* Background decorative elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full -translate-y-32 translate-x-32 opacity-70"></div>
+      <div className="absolute top-0 right-500 w-64 h-64 bg-indigo-50 rounded-full -translate-y-32 translate-x-32 opacity-70"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-50 rounded-full translate-y-48 -translate-x-48 opacity-70"></div>
       
       <div className="max-w-4xl w-full text-center relative z-10">
@@ -119,3 +120,5 @@ const NotFound = () => {
 };
 
 export default NotFound;
+
+
