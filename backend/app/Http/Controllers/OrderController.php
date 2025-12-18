@@ -142,4 +142,39 @@ class OrderController extends Controller
             ]
         ]);
     }
+
+    /**
+     * PUBLIC: Cek Status Order oleh Klien
+     * Request: order_id (string), no_hp (string) -> untuk verifikasi
+     */
+    public function checkStatus(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required',
+            'no_hp' => 'required', // Biar orang iseng gak bisa asal cek punya orang lain
+        ]);
+
+        $order = Order::where('order_id', $request->order_id)
+                      ->where('no_hp', $request->no_hp)
+                      ->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order tidak ditemukan atau No HP salah.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'order_id' => $order->order_id,
+                'nama' => $order->nama_pelanggan,
+                'paket' => $order->paket_layanan,
+                'status_pembayaran' => $order->status, // pending, paid
+                'created_at' => $order->created_at->format('d M Y'),
+                // Nanti bisa tambah kolom 'progres_pengerjaan' di database kalau mau lebih detail
+            ]
+        ]);
+    }
 }

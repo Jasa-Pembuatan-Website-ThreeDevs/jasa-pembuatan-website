@@ -23,9 +23,13 @@ class PaymentController extends Controller
                 'harga' => 'required|numeric|min:0',
             ]);
 
+            // Log request data for debugging
+            Log::info('Payment request received: ' . json_encode($request->all()));
+
             // 2. Setup Midtrans
             $serverKey = config('midtrans.server_key');
             if (!$serverKey) {
+                Log::error('Midtrans server key not configured');
                 return response()->json([
                     'error' => 'Midtrans server key not configured',
                     'message' => 'Please check your .env file for MIDTRANS_SERVER_KEY'
@@ -74,6 +78,7 @@ class PaymentController extends Controller
             } catch (\Exception $e) {
                 // If Midtrans fails, use a mock token for testing
                 Log::warning('Midtrans failed, using mock token: ' . $e->getMessage());
+                Log::warning('Exception trace: ' . $e->getTraceAsString());
                 
                 // Generate a proper test token format that Midtrans can recognize
                 $snapToken = 'snap-' . md5(time() . $orderId);
@@ -91,18 +96,26 @@ class PaymentController extends Controller
                 'snap_token' => $snapToken,
             ]));
 
-            $order = Order::create([
-                'order_id' => $orderId,
-                'nama_pelanggan' => $request->nama,
-                'email' => $request->email,
-                'no_hp' => $request->no_hp,
-                'paket_layanan' => $request->paket,
-                'total_harga' => (float)$request->harga,
-                'status' => 'pending',
-                'snap_token' => $snapToken,
-            ]);
+            try {
+                $order = Order::create([
+                    'order_id' => $orderId,
+                    'nama_pelanggan' => $request->nama,
+                    'email' => $request->email,
+                    'no_hp' => $request->no_hp,
+                    'paket_layanan' => $request->paket,
+                    'total_harga' => (float)$request->harga,
+                    'status' => 'pending',
+                    'snap_token' => $snapToken,
+                ]);
 
-            Log::info('Order created successfully: ' . $order->id);
+                Log::info('Order created successfully: ' . $order->id);
+            } catch (\Exception $e) {
+                Log::error('Failed to create order: ' . $e->getMessage());
+                return response()->json([
+                    'error' => 'Failed to create order',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
 
             // 7. Balikin Token ke Frontend
             return response()->json([
@@ -115,9 +128,12 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             Log::error('Payment creation failed: ' . $e->getMessage());
             Log::error('Request data: ' . json_encode($request->all()));
+            Log::error('Exception trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'error' => $e->getMessage(),
-                'message' => 'Failed to create payment transaction'
+                'message' => 'Failed to create payment transaction',
+                'trace' => $e->getTraceAsString()
             ], 500);
         }
     }

@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import img  from '../assets/SSB.png';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const portfolioProjects = [
   {
@@ -6,26 +11,131 @@ const portfolioProjects = [
     title: "Sekolah Sepak Bola",
     category: "Website Development",
     description: "Platform Sekolah Sepak Bola Digital dengan fitur lengkap Dan Fungsional, dilengkapi dashboard admin, sistem pembayaran.",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    technologies: ["React", "Node.js", "Sqlite", "Laravel", "Tailwind CSS"],
+    // image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    technologies: ["React", "NPM", "Sqlite", "Laravel", "Tailwind CSS"],
     demoUrl: "#",
-    detailsUrl: "#",
+    detailsUrl: "/project-detail",
     featured: true
   },
 
 ];
 
 export default function Portfolio() {
+  const containerRef = useRef(null);
+  const headerRef = useRef(null);
+  const titleRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const projectsRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Header animation
+      if (headerRef.current) {
+        gsap.fromTo(headerRef.current,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+        )
+      }
+
+      // Title animation
+      if (titleRef.current) {
+        gsap.fromTo(titleRef.current,
+          { opacity: 0, x: -50 },
+          { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.2 }
+        )
+      }
+
+      // Description animation
+      if (descriptionRef.current) {
+        gsap.fromTo(descriptionRef.current,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 0.3 }
+        )
+      }
+
+      // Projects animation
+      if (projectsRef.current?.children) {
+        gsap.fromTo(projectsRef.current.children,
+          { opacity: 0, y: 60, scale: 0.95 },
+          { 
+            opacity: 1, 
+            y: 0, 
+            scale: 1, 
+            duration: 1.2, 
+            stagger: 0.3, 
+            ease: 'power3.out', 
+            delay: 0.5,
+            onComplete: () => {
+              // Add hover animations to projects
+              gsap.utils.toArray(projectsRef.current.children).forEach((card) => {
+                card.addEventListener('mouseenter', () => {
+                  gsap.to(card, { y: -15, duration: 0.3, ease: 'power2.out' })
+                  gsap.to(card.querySelector('img'), { scale: 1.05, duration: 0.3, ease: 'power2.out' })
+                })
+                card.addEventListener('mouseleave', () => {
+                  gsap.to(card, { y: 0, duration: 0.3, ease: 'power2.out' })
+                  gsap.to(card.querySelector('img'), { scale: 1, duration: 0.3, ease: 'power2.out' })
+                })
+              })
+            }
+          }
+        )
+
+        // Parallax effect for images
+        gsap.utils.toArray(projectsRef.current.children).forEach((card) => {
+          const img = card.querySelector('img');
+          if (img) {
+            gsap.to(img, {
+              y: -15,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: true
+              }
+            })
+          }
+        })
+
+        // Scroll-triggered animations
+        ScrollTrigger.create({
+          trigger: projectsRef.current,
+          start: 'top 80%',
+          animation: gsap.fromTo(projectsRef.current.children,
+            { opacity: 0, y: 60 },
+            { opacity: 1, y: 0, duration: 1.2, stagger: 0.3, ease: 'power3.out' }
+          )
+        })
+      }
+
+      // Floating animations for badges (only if elements exist)
+      const floatingBadges = document.querySelectorAll('.floating-badge');
+      if (floatingBadges.length > 0) {
+        gsap.to(floatingBadges, {
+          y: -8,
+          duration: 3.5,
+          ease: 'power1.inOut',
+          yoyo: true,
+          repeat: -1,
+          delay: Math.random() * 1
+        })
+      }
+    }, containerRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
-    <section id="portfolio" className="py-16 md:py-24 bg-gray-50">
+    <section id="portfolio" ref={containerRef} className="py-16 md:py-24 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+        <div ref={headerRef} className="text-center mb-12 md:mb-16">
+          <h2 ref={titleRef} className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Portfolio <span className="text-indigo-600">Kami</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+          <p ref={descriptionRef} className="text-gray-600 max-w-2xl mx-auto text-lg">
             Jelajahi proyek-proyek terbaik yang telah kami selesaikan untuk klien dari berbagai industri.
           </p>
           
@@ -50,7 +160,7 @@ export default function Portfolio() {
         </div>
 
         {/* Portfolio Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div ref={projectsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {portfolioProjects.map((project) => (
             <div 
               key={project.id} 
@@ -59,7 +169,7 @@ export default function Portfolio() {
               {/* Project Image */}
               <div className="relative h-56 overflow-hidden">
                 <img 
-                  src={project.image} 
+                  src={img} 
                   alt={project.title}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 />
