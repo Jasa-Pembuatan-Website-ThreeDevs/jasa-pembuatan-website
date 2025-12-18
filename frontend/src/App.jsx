@@ -8,6 +8,7 @@ import Services from './pages/Services'
 import Portfolio from './pages/Portfolio'
 import ContactPage from './pages/Contact'
 import Faq from './pages/Faq'
+import NotFound from './pages/NotFound'
 import { Routes, Route } from "react-router-dom";
 import axios from 'axios';
 import MaintenancePage from "./components/MaintenancePage"; // <--- IMPORT DISINI
@@ -84,6 +85,9 @@ function App() {
             <Footer />
           </>
         } />
+        
+        {/* Catch-all route for 404 Not Found */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   )

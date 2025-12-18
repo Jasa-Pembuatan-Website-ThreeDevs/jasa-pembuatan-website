@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PengeluaranController;
 
 // routes/api.php
 Route::get('/status', function () {
@@ -42,3 +44,34 @@ Route::get('/orders', function () {
 });
 
 Route::post('/payment', [PaymentController::class, 'createTransaction']);
+
+Route::prefix('admin')->group(function () {
+    // List semua order (Pemasukan)
+    Route::get('/orders', [OrderController::class, 'index']);
+    
+    // Input order manual (Pemasukan Cash)
+    Route::post('/orders', [OrderController::class, 'store']);
+    
+    // Detail 1 order
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    
+    // Update order (Ganti status jadi lunas manual)
+    Route::put('/orders/{id}', [OrderController::class, 'update']);
+    
+    // Hapus order
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+    
+    // API Khusus Widget Dashboard (Total Duit)
+    Route::get('/income-summary', [OrderController::class, 'incomeSummary']);
+
+    Route::get('/expenses', [PengeluaranController::class, 'index']);
+    Route::post('/expenses', [PengeluaranController::class, 'store']);
+    
+    // Detail, Update, Delete
+    Route::get('/expenses/{id}', [PengeluaranController::class, 'show']);
+    Route::put('/expenses/{id}', [PengeluaranController::class, 'update']);
+    Route::delete('/expenses/{id}', [PengeluaranController::class, 'destroy']);
+
+    // API Summary Pengeluaran
+    Route::get('/expense-summary', [PengeluaranController::class, 'expenseSummary']);
+});
