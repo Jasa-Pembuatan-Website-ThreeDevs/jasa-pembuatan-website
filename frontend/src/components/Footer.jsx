@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useSmoothScroll } from '../hooks/useSmoothScroll';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
 // Asumsi Font Awesome diimpor atau ditambahkan ke proyek Anda (misalnya melalui CDN atau paket)
 
 // --- Data Struktur Tautan ---
@@ -10,6 +15,8 @@ const quickLinks = [
     { name: "Services", href: "#" },
     { name: "Portfolio", href: "#" },
     { name: "FAQ", href: "/faq" },
+    { name: "Terms", href: "/terms" },
+    { name: "Privacy", href: "/privacy" },
     { name: "Contact", href: "#" },
 ];
 
@@ -53,6 +60,93 @@ const contactInfo = [
 export default function Footer() {
     const currentYear = new Date().getFullYear();
     useSmoothScroll();
+    
+    const containerRef = useRef(null);
+    const brandRef = useRef(null);
+    const quickLinksRef = useRef(null);
+    const servicesRef = useRef(null);
+    const contactRef = useRef(null);
+    const newsletterRef = useRef(null);
+    const bottomRef = useRef(null);
+
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            // Brand section animation
+            if (brandRef.current) {
+                gsap.fromTo(brandRef.current,
+                    { opacity: 0, x: -50 },
+                    { opacity: 1, x: 0, duration: 1, ease: 'power3.out' }
+                )
+            }
+
+            // Quick links animation
+            if (quickLinksRef.current?.children) {
+                gsap.fromTo(quickLinksRef.current.children,
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power2.out', delay: 0.2 }
+                )
+            }
+
+            // Services animation
+            if (servicesRef.current?.children) {
+                gsap.fromTo(servicesRef.current.children,
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power2.out', delay: 0.3 }
+                )
+            }
+
+            // Contact info animation
+            if (contactRef.current?.children) {
+                gsap.fromTo(contactRef.current.children,
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power2.out', delay: 0.4 }
+                )
+            }
+
+            // Newsletter animation
+            if (newsletterRef.current) {
+                gsap.fromTo(newsletterRef.current,
+                    { opacity: 0, scale: 0.9 },
+                    { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.7)', delay: 0.5 }
+                )
+            }
+
+            // Bottom bar animation
+            if (bottomRef.current) {
+                gsap.fromTo(bottomRef.current,
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', delay: 0.6 }
+                )
+            }
+
+            // Floating animations for icons (only if elements exist)
+            const floatingIcons = document.querySelectorAll('.floating-icon');
+            if (floatingIcons.length > 0) {
+                gsap.to(floatingIcons, {
+                    y: -4,
+                    duration: 3,
+                    ease: 'power1.inOut',
+                    yoyo: true,
+                    repeat: -1,
+                    delay: Math.random() * 1
+                })
+            }
+
+            // Scroll-triggered animations
+            if (containerRef.current) {
+                ScrollTrigger.create({
+                    trigger: containerRef.current,
+                    start: 'top 80%',
+                    animation: gsap.fromTo(containerRef.current,
+                        { opacity: 0, y: 50 },
+                        { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+                    )
+                })
+            }
+        }, containerRef)
+
+        return () => ctx.revert()
+    }, [])
 
     // Fungsi untuk kembali ke atas halaman
     const scrollToTop = () => {
@@ -60,7 +154,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className="bg-white border-t border-gray-100">
+        <footer ref={containerRef} className="bg-white border-t border-gray-100">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Main Footer Content: 4 Columns */}
@@ -68,7 +162,7 @@ export default function Footer() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12">
 
                         {/* 1. Brand Column */}
-                        <div className="space-y-4 sm:space-y-5">
+                        <div ref={brandRef} className="space-y-4 sm:space-y-5">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white font-bold text-lg sm:text-xl">
                                     TD
@@ -97,7 +191,7 @@ export default function Footer() {
                         </div>
 
                         {/* 2. Quick Links (Menggunakan .map) */}
-                        <div>
+                        <div ref={quickLinksRef}>
                             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Quick Links</h3>
                             <ul className="space-y-4">
                                 {quickLinks.map((link) => (
@@ -115,7 +209,7 @@ export default function Footer() {
                         </div>
 
                         {/* 3. Services (Menggunakan .map) */}
-                        <div>
+                        <div ref={servicesRef}>
                             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Our Services</h3>
                             <ul className="space-y-4">
                                 {ourServices.map((service) => (
@@ -133,7 +227,7 @@ export default function Footer() {
                         </div>
 
                         {/* 4. Contact Info & Newsletter */}
-                        <div>
+                        <div ref={contactRef}>
                             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6">Get in Touch</h3>
                             <ul className="space-y-4">
                                 {contactInfo.map((item, index) => (
@@ -155,7 +249,7 @@ export default function Footer() {
                             </ul>
 
                             {/* Newsletter Subscription (Tidak diubah karena sudah ringkas) */}
-                            <div className="mt-8">
+                            <div ref={newsletterRef} className="mt-8">
                                 <h4 className="text-sm font-semibold text-gray-700 mb-3">Subscribe to Newsletter</h4>
                                 <div className="flex">
                                     <input

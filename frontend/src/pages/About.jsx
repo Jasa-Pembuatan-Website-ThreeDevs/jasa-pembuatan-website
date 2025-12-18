@@ -1,6 +1,97 @@
+import React, { useRef, useEffect } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
+
 export default function About() {
+    const containerRef = useRef(null)
+    const badgeRef = useRef(null)
+    const titleRef = useRef(null)
+    const subtitleRef = useRef(null)
+    const contentRef = useRef(null)
+    const featuresRef = useRef(null)
+    const ctaRef = useRef(null)
+    const imageRef = useRef(null)
+
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            // Badge animation
+            gsap.fromTo(badgeRef.current,
+                { opacity: 0, scale: 0.8, y: 20 },
+                { opacity: 1, scale: 1, y: 0, duration: 1, ease: 'back.out(1.7)' }
+            )
+
+            // Title animation
+            gsap.fromTo(titleRef.current,
+                { opacity: 0, x: -50 },
+                { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.2 }
+            )
+
+            // Subtitle animation
+            gsap.fromTo(subtitleRef.current,
+                { opacity: 0, x: 50 },
+                { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.4 }
+            )
+
+            // Content animation
+            gsap.fromTo(contentRef.current,
+                { opacity: 0, y: 40 },
+                { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 0.6 }
+            )
+
+            // Features animation
+            gsap.fromTo(featuresRef.current?.children,
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power2.out', delay: 0.8 }
+            )
+
+            // CTA buttons animation
+            gsap.fromTo(ctaRef.current?.children,
+                { opacity: 0, scale: 0.9 },
+                { opacity: 1, scale: 1, duration: 0.8, stagger: 0.3, ease: 'back.out(1.7)', delay: 1 }
+            )
+
+            // Image animation
+            gsap.fromTo(imageRef.current,
+                { opacity: 0, scale: 0.9, rotation: -2 },
+                { opacity: 1, scale: 1, rotation: 0, duration: 1.5, ease: 'power3.out', delay: 0.5 }
+            )
+
+            // Floating animations
+            gsap.to('.floating-element', {
+                y: -6,
+                duration: 3,
+                ease: 'power1.inOut',
+                yoyo: true,
+                repeat: -1,
+                delay: Math.random() * 1
+            })
+
+            // Scroll-triggered animations
+            ScrollTrigger.create({
+                trigger: contentRef.current,
+                start: 'top 80%',
+                animation: gsap.fromTo(contentRef.current,
+                    { opacity: 0, x: -30 },
+                    { opacity: 1, x: 0, duration: 1, ease: 'power2.out' }
+                )
+            })
+
+            ScrollTrigger.create({
+                trigger: featuresRef.current,
+                start: 'top 85%',
+                animation: gsap.fromTo(featuresRef.current?.children,
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power2.out' }
+                )
+            })
+        }, containerRef)
+
+        return () => ctx.revert()
+    }, [])
     return (
-        <section id="about" className="min-h-screen bg-white font-sans overflow-hidden relative">
+        <section id="about" ref={containerRef} className="min-h-screen bg-white font-sans overflow-hidden relative">
 
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full -translate-y-32 translate-x-32"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-50 rounded-full translate-y-48 -translate-x-48"></div>
@@ -11,23 +102,23 @@ export default function About() {
                     <div className="lg:w-1/2">
 
                         {/* Professional Badge */}
-                        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-6 py-3 rounded-full mb-8">
+                        <div ref={badgeRef} className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-6 py-3 rounded-full mb-8 floating-element">
                             <span className="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></span>
                             <span className="text-sm font-semibold">Tim Profesional & Berpengalaman</span>
                             <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></span>
                         </div>
 
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6">
+                        <h1 ref={titleRef} className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6">
                             Tentang <span className="text-indigo-600">kami</span>
                         </h1>
 
                         <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-12"></div>
 
-                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-8">
+                        <h2 ref={subtitleRef} className="text-2xl sm:text-3xl font-bold text-gray-800 mb-8">
                             Kenapa Memilih Kami?
                         </h2>
 
-                        <div className="text-gray-700 space-y-8 mb-10 max-w-2xl">
+                        <div ref={contentRef} className="text-gray-700 space-y-8 mb-10 max-w-2xl">
                             <p className="text-base sm:text-lg leading-relaxed">
                                 Kami adalah tim profesional dari SMKS Muhammadiyah 1 Genteng yang fokus pada hasil nyata — menguasai frontend dan backend, serta mampu mengintegrasikan teknologi AI untuk mempercepat dan mempermudah proses pembuatan website. Kami mengutamakan komunikasi yang jelas, solusi yang mudah dipelihara, dan penyelesaian tepat waktu.
                             </p>
@@ -37,7 +128,7 @@ export default function About() {
                             </p>
 
                             {/* Key Features */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                            <div ref={featuresRef} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
                                 <div className="flex items-start space-x-3">
                                     <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                         <i className="fa-solid fa-bolt text-sm"></i>
@@ -77,7 +168,7 @@ export default function About() {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-4 mt-8">
+                        <div ref={ctaRef} className="flex flex-wrap gap-4 mt-8">
                             <a href="#portfolio" className="group flex items-center space-x-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
                                 <span className="flex items-center gap-2">
                                     <i className="fa-solid fa-portrait"></i>
@@ -98,7 +189,7 @@ export default function About() {
                     </div>
 
                     <div className="lg:w-1/2 flex justify-center lg:justify-end">
-                        <div className="relative w-full max-w-xl">
+                        <div ref={imageRef} className="relative w-full max-w-xl floating-element">
 
                             <div className="bg-gradient-to-br from-indigo-100 to-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100">
                                 <div className="aspect-[4/5] relative">

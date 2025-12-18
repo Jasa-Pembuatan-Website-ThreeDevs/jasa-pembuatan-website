@@ -1,11 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom"; // Tambahkan ini
 import { useSmoothScroll } from "../hooks/useSmoothScroll";
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     useSmoothScroll();
+    
+    const containerRef = useRef(null);
+    const logoRef = useRef(null);
+    const navRef = useRef(null);
+
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            // Logo animation
+            if (logoRef.current) {
+                gsap.fromTo(logoRef.current,
+                    { opacity: 0, scale: 0.8, x: -30 },
+                    { opacity: 1, scale: 1, x: 0, duration: 1, ease: 'back.out(2.5)' }
+                )
+
+                // Floating animation for logo
+                gsap.to(logoRef.current, {
+                    y: -3,
+                    duration: 3,
+                    ease: 'power1.inOut',
+                    yoyo: true,
+                    repeat: -1,
+                    delay: Math.random() * 1
+                })
+            }
+
+            // Navigation animation
+            if (navRef.current?.children) {
+                gsap.fromTo(navRef.current.children,
+                    { opacity: 0, y: -20 },
+                    { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out', delay: 0.3 }
+                )
+            }
+        }, containerRef)
+
+        return () => ctx.revert()
+    }, [])
 
     useEffect(() => {
         const onScroll = () => {
@@ -16,13 +56,13 @@ export default function Navbar() {
     }, []);
 
     return (
-        <header
+        <header ref={containerRef}
             className={`fixed top-0 left-0 w-full z-[50] px-4 sm:px-6 py-3 sm:py-4 transition-all duration-500
         ${scrolled ? "bg-white/95 backdrop-blur-sm shadow-lg" : "bg-gradient-to-r from-white/80 to-white/60 backdrop-blur-sm"}`}
         >
             <div className="flex justify-between items-center">
                 {/* Logo dengan Link ke Home */}
-                <Link to="/" className="flex items-center space-x-3 group">
+                <Link to="/" ref={logoRef} className="flex items-center space-x-3 group">
                     <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
                         <span className="text-white font-bold text-lg">TD</span>
                     </div>
@@ -45,10 +85,10 @@ export default function Navbar() {
                     </svg>
                 </button>
 
-                <nav className="hidden md:flex items-center space-x-4 sm:space-x-6">
+                <nav ref={navRef} className="hidden md:flex items-center space-x-4 sm:space-x-6">
                 
                     {[
-                        { icon: "fa-house", text: "Home", link: "#home" },
+                        { icon: "fa-house", text: "Home", link: "/#" },
                         { icon: "fa-circle-info", text: "About", link: "#about" },
                         { icon: "fa-dollar", text: "Services", link: "#services" },
                         { icon: "fa-briefcase", text: "Portfolio", link: "#portfolio" },

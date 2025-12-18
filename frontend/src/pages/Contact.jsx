@@ -1,6 +1,107 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const ContactPage = () => {
+  const containerRef = useRef(null);
+  const headerRef = useRef(null);
+  const titleRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const formRef = useRef(null);
+  const contactInfoRef = useRef(null);
+  const servicesRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Header animation
+      if (headerRef.current) {
+        gsap.fromTo(headerRef.current,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+        )
+      }
+
+      // Title animation
+      if (titleRef.current) {
+        gsap.fromTo(titleRef.current,
+          { opacity: 0, x: -50 },
+          { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.2 }
+        )
+      }
+
+      // Description animation
+      if (descriptionRef.current) {
+        gsap.fromTo(descriptionRef.current,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 0.3 }
+        )
+      }
+
+      // Form animation
+      if (formRef.current) {
+        gsap.fromTo(formRef.current,
+          { opacity: 0, x: -60 },
+          { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.5 }
+        )
+      }
+
+      // Contact info animation
+      if (contactInfoRef.current?.children) {
+        gsap.fromTo(contactInfoRef.current.children,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: 'power2.out', delay: 0.7 }
+        )
+      }
+
+      // Services animation
+      if (servicesRef.current?.children) {
+        gsap.fromTo(servicesRef.current.children,
+          { opacity: 0, scale: 0.9 },
+          { opacity: 1, scale: 1, duration: 0.8, stagger: 0.15, ease: 'back.out(1.7)', delay: 0.8 }
+        )
+      }
+
+      // Floating animations (only if elements exist)
+      const floatingElements = document.querySelectorAll('.floating-element');
+      if (floatingElements.length > 0) {
+        gsap.to(floatingElements, {
+          y: -6,
+          duration: 3,
+          ease: 'power1.inOut',
+          yoyo: true,
+          repeat: -1,
+          delay: Math.random() * 1
+        })
+      }
+
+      // Scroll-triggered animations
+      if (formRef.current) {
+        ScrollTrigger.create({
+          trigger: formRef.current,
+          start: 'top 80%',
+          animation: gsap.fromTo(formRef.current,
+            { opacity: 0, x: -60 },
+            { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out' }
+          )
+        })
+      }
+
+      if (contactInfoRef.current) {
+        ScrollTrigger.create({
+          trigger: contactInfoRef.current,
+          start: 'top 85%',
+          animation: gsap.fromTo(contactInfoRef.current.children,
+            { opacity: 0, y: 40 },
+            { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: 'power2.out' }
+          )
+        })
+      }
+    }, containerRef)
+
+    return () => ctx.revert()
+  }, [])
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -87,16 +188,16 @@ Mohon informasi lebih lanjut mengenai layanan Anda. Terima kasih!`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       <section id="contact">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+        <div ref={headerRef} className="text-center mb-12">
+          <h1 ref={titleRef} className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
             <span className="block">Hubungi Kami untuk</span>
             <span className="block text-indigo-600">Layanan Website Anda</span>
           </h1>
-          <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
+          <p ref={descriptionRef} className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
             Diskusikan kebutuhan website Anda dengan tim ahli kami. Kirim pesan langsung ke WhatsApp kami untuk konsultasi gratis.
           </p>
         </div>
@@ -105,7 +206,7 @@ Mohon informasi lebih lanjut mengenai layanan Anda. Terima kasih!`;
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Form kontak */}
           <div className="lg:w-2/3">
-            <div className="bg-white shadow-xl rounded-2xl p-6 md:p-8">
+            <div ref={formRef} className="bg-white shadow-xl rounded-2xl p-6 md:p-8">
               {isSubmitted ? (
                 <div className="text-center py-12">
                   <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
@@ -273,7 +374,7 @@ Mohon informasi lebih lanjut mengenai layanan Anda. Terima kasih!`;
           {/* Informasi kontak dan layanan */}
           <div className="lg:w-1/3">
             {/* Kartu kontak langsung */}
-            <div className="bg-white shadow-xl rounded-2xl p-6 mb-8">
+            <div ref={contactInfoRef} className="bg-white shadow-xl rounded-2xl p-6 mb-8">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Hubungi Kami Langsung</h3>
               <p className="text-gray-600 mb-6">
                 Butuh konsultasi cepat? Hubungi kami langsung melalui WhatsApp tanpa mengisi form.
@@ -338,7 +439,7 @@ Mohon informasi lebih lanjut mengenai layanan Anda. Terima kasih!`;
             </div>
             
             {/* Kartu layanan */}
-            <div className="bg-indigo-700 text-white shadow-xl rounded-2xl p-6">
+            <div ref={servicesRef} className="bg-indigo-700 text-white shadow-xl rounded-2xl p-6">
               <h3 className="text-xl font-bold mb-4">Layanan Kami</h3>
               <ul className="space-y-3">
                 {services.map(service => (
@@ -380,7 +481,7 @@ Mohon informasi lebih lanjut mengenai layanan Anda. Terima kasih!`;
             </div>
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h4 className="text-lg font-semibold text-gray-900 mb-2">Bisakah saya request revisi desain?</h4>
-              <p className="text-gray-600">Tentu! Kami memberikan unlimited revisi pada tahap desain hingga Anda puas dengan hasilnya sebelum masuk ke tahap development.</p>
+              <p className="text-gray-600">Tentu! Kami memberikan 2x revisi pada tahap desain hingga Anda puas dengan hasilnya sebelum masuk ke tahap development.</p>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h4 className="text-lg font-semibold text-gray-900 mb-2">Bagaimana proses pembayarannya?</h4>

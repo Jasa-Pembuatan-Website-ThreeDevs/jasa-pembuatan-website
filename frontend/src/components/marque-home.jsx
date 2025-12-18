@@ -30,7 +30,7 @@ export default function Marque() {
   return (
     <div className="w-full overflow-hidden py-6 sm:py-10 bg-white">
       <h2 className="text-center text-indigo-600 text-xl sm:text-2xl font-semibold mb-8 sm:mb-12">
-        Teknologi yang <span className="text-black">Kami Gunakan</span>
+        Teknologi Modern<span className="text-black"> Yang Kami Gunakan</span>
       </h2>
 
       <div className="marquee-container">

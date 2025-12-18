@@ -75,3 +75,5 @@ Route::prefix('admin')->group(function () {
     // API Summary Pengeluaran
     Route::get('/expense-summary', [PengeluaranController::class, 'expenseSummary']);
 });
+
+Route::post('/track-order', [OrderController::class, 'checkStatus']);

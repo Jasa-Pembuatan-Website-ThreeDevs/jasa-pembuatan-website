@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const faqData = [
     {
@@ -37,30 +41,121 @@ const faqData = [
 
 export default function Faq() {
     const [openIndex, setOpenIndex] = useState(null);
+    
+    const containerRef = useRef(null);
+    const headerRef = useRef(null);
+    const badgeRef = useRef(null);
+    const titleRef = useRef(null);
+    const faqsRef = useRef(null);
+    const ctaRef = useRef(null);
+
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            // Header animation
+            gsap.fromTo(headerRef.current,
+                { opacity: 0, y: 40 },
+                { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
+            )
+
+            // Badge animation
+            gsap.fromTo(badgeRef.current,
+                { opacity: 0, scale: 0.8 },
+                { opacity: 1, scale: 1, duration: 1, ease: 'back.out(1.7)', delay: 0.2 }
+            )
+
+            // Title animation
+            gsap.fromTo(titleRef.current,
+                { opacity: 0, x: -50 },
+                { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.3 }
+            )
+
+            // FAQ items animation
+            gsap.fromTo(faqsRef.current?.children,
+                { opacity: 0, y: 50, scale: 0.98 },
+                { 
+                    opacity: 1, 
+                    y: 0, 
+                    scale: 1, 
+                    duration: 1, 
+                    stagger: 0.2, 
+                    ease: 'power3.out', 
+                    delay: 0.5,
+                    onComplete: () => {
+                        // Add hover animations to FAQ items
+                        gsap.utils.toArray(faqsRef.current?.children).forEach((item) => {
+                            item.addEventListener('mouseenter', () => {
+                                gsap.to(item, { y: -5, duration: 0.3, ease: 'power2.out' })
+                            })
+                            item.addEventListener('mouseleave', () => {
+                                gsap.to(item, { y: 0, duration: 0.3, ease: 'power2.out' })
+                            })
+                        })
+                    }
+                }
+            )
+
+            // CTA section animation
+            gsap.fromTo(ctaRef.current,
+                { opacity: 0, y: 60 },
+                { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out', delay: 1 }
+            )
+
+            // Floating animations
+            gsap.to('.floating-element', {
+                y: -6,
+                duration: 3,
+                ease: 'power1.inOut',
+                yoyo: true,
+                repeat: -1,
+                delay: Math.random() * 1
+            })
+
+            // Scroll-triggered animations
+            ScrollTrigger.create({
+                trigger: faqsRef.current,
+                start: 'top 80%',
+                animation: gsap.fromTo(faqsRef.current?.children,
+                    { opacity: 0, y: 50 },
+                    { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: 'power3.out' }
+                )
+            })
+
+            ScrollTrigger.create({
+                trigger: ctaRef.current,
+                start: 'top 85%',
+                animation: gsap.fromTo(ctaRef.current,
+                    { opacity: 0, y: 60 },
+                    { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }
+                )
+            })
+        }, containerRef)
+
+        return () => ctx.revert()
+    }, [])
 
     const toggleFAQ = (index) => {
         setOpenIndex(openIndex === index ? null : index);
     };
 
     return (
-        <section id="faq" className="min-h-screen bg-white font-sans overflow-hidden relative">
+        <section id="faq" ref={containerRef} className="min-h-screen bg-white font-sans overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full -translate-y-32 translate-x-32"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-50 rounded-full translate-y-48 -translate-x-48"></div>
 
             <div className="container mx-auto px-6 py-12 md:py-24 relative z-10">
-<div className="max-w-4xl mx-auto">
+<div ref={headerRef} className="max-w-4xl mx-auto">
                 {/* Professional Badge */}
-                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-6 py-3 rounded-full mb-8 mx-auto">
+                <div ref={badgeRef} className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-6 py-3 rounded-full mb-8 mx-auto floating-element">
                     <span className="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></span>
                     <span className="text-sm font-semibold">Butuh Bantuan? Temukan Jawabannya di Sini</span>
                     <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6 text-center">
+                <h1 ref={titleRef} className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6 text-center">
                         Pertanyaan yang <span className="text-indigo-600">Sering Diajukan</span>
                     </h1>
 
-                    <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-12 mx-auto"></div>                    <div className="space-y-4">
+                    <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-12 mx-auto"></div>                    <div ref={faqsRef} className="space-y-4">
                         {faqData.map((item, index) => (
                             <div key={index} className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-indigo-200">
                                 <button
@@ -101,7 +196,7 @@ export default function Faq() {
                         ))}
                     </div>
 
-                    <div className="mt-16 text-center">
+                    <div ref={ctaRef} className="mt-16 text-center">
                         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-3xl p-8 border border-indigo-100 shadow-lg">
                             <h3 className="text-2xl font-bold text-gray-900 mb-4">Masih memiliki pertanyaan?</h3>
                             <p className="text-gray-600 mb-8 text-lg max-w-2xl mx-auto">

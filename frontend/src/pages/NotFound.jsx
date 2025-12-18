@@ -1,9 +1,91 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const NotFound = () => {
+  const containerRef = useRef(null);
+  const iconRef = useRef(null);
+  const codeRef = useRef(null);
+  const titleRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const buttonsRef = useRef(null);
+  const linksRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Icon animation
+      gsap.fromTo(iconRef.current,
+        { opacity: 0, scale: 0.5, rotation: -180 },
+        { opacity: 1, scale: 1, rotation: 0, duration: 1.5, ease: 'back.out(2.5)' }
+      )
+
+      // Error code animation
+      gsap.fromTo(codeRef.current,
+        { opacity: 0, x: -100 },
+        { opacity: 1, x: 0, duration: 1.2, ease: 'power3.out', delay: 0.5 }
+      )
+
+      // Title animation
+      gsap.fromTo(titleRef.current,
+        { opacity: 0, y: 50 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.7 }
+      )
+
+      // Description animation
+      gsap.fromTo(descriptionRef.current,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power2.out', delay: 0.9 }
+      )
+
+      // Buttons animation
+      gsap.fromTo(buttonsRef.current?.children,
+        { opacity: 0, y: 60, scale: 0.9 },
+        { opacity: 1, y: 0, scale: 1, duration: 1, stagger: 0.3, ease: 'power3.out', delay: 1.1 }
+      )
+
+      // Links animation
+      gsap.fromTo(linksRef.current?.children,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power2.out', delay: 1.3 }
+      )
+
+      // Floating animations for decorative elements
+      gsap.to('.floating-element', {
+        y: -8,
+        duration: 3.5,
+        ease: 'power1.inOut',
+        yoyo: true,
+        repeat: -1,
+        delay: Math.random() * 1
+      })
+
+      // Pulsing animation for error code
+      gsap.to(codeRef.current, {
+        scale: 1.05,
+        duration: 2,
+        ease: 'power1.inOut',
+        yoyo: true,
+        repeat: -1
+      })
+
+      // Scroll-triggered animations
+      ScrollTrigger.create({
+        trigger: descriptionRef.current,
+        start: 'top 80%',
+        animation: gsap.fromTo(descriptionRef.current,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }
+        )
+      })
+    }, containerRef)
+
+    return () => ctx.revert()
+  }, [])
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center px-4 py-16 overflow-x-hidden
+    <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center px-4 py-16 overflow-x-hidden
 ">
       
       {/* Background decorative elements */}
@@ -14,7 +96,7 @@ const NotFound = () => {
         
         {/* Error Icon - menggunakan emoji/HTML */}
         <div className="flex justify-center mb-8">
-          <div className="relative">
+          <div ref={iconRef} className="relative floating-element">
             <div className="w-40 h-40 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-full flex items-center justify-center shadow-xl">
               <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
                 <span className="text-6xl text-indigo-600">⚠️</span>
@@ -30,19 +112,19 @@ const NotFound = () => {
         </div>
         
         {/* Error Code */}
-        <h1 className="text-9xl font-bold text-gray-900 mb-2 tracking-tighter">
+        <h1 ref={codeRef} className="text-9xl font-bold text-gray-900 mb-2 tracking-tighter">
           4<span className="text-indigo-600">0</span>4
         </h1>
         
         {/* Error Message */}
-        <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+        <h2 ref={titleRef} className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
           Halaman Tidak Ditemukan
         </h2>
         
         <div className="w-24 h-1.5 bg-indigo-500 rounded-full mx-auto mb-8"></div>
         
         {/* Description */}
-        <div className="max-w-2xl mx-auto mb-12">
+        <div ref={descriptionRef} className="max-w-2xl mx-auto mb-12">
           <p className="text-lg md:text-xl text-gray-600 mb-6 leading-relaxed">
             Sepertinya halaman yang Anda cari telah dipindahkan, dihapus, atau tidak pernah ada. 
             Jangan khawatir, tim <span className="text-indigo-600 font-semibold">Three Developer</span> siap membantu Anda menemukan jalan kembali.
@@ -60,7 +142,7 @@ const NotFound = () => {
         </div>
         
         {/* Action Buttons */}
-        <div className="flex flex-wrap justify-center gap-6">
+        <div ref={buttonsRef} className="flex flex-wrap justify-center gap-6">
           <Link
             to="/"
             className="group flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
@@ -85,7 +167,7 @@ const NotFound = () => {
         </div>
         
         {/* Additional helpful links */}
-        <div className="mt-16 pt-8 border-t border-gray-100">
+        <div ref={linksRef} className="mt-16 pt-8 border-t border-gray-100">
           <p className="text-gray-500 mb-4">Atau coba jelajahi halaman lainnya:</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/about" className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors">

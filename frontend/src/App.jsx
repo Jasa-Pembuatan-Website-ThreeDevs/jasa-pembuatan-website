@@ -13,6 +13,11 @@ import { Routes, Route } from "react-router-dom";
 import axios from 'axios';
 import MaintenancePage from "./components/MaintenancePage"; // <--- IMPORT DISINI
 import OrderPage from './pages/OrderPages'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
+import CTASection from './components/CTASection'
+import ProjectDetail from './pages/ProjectDetail'
+import TrackOrder from './pages/TrackOrder'
 
 function App() {
  const [isMaintenance, setIsMaintenance] = useState(false);
@@ -73,7 +78,10 @@ function App() {
       <Routes>
         <Route path="/order" element={<OrderPage />} />
         <Route path="/faq" element={<Faq />} />
-
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path='/project-detail' element={<ProjectDetail />} />
+        <Route path='/track' element={<TrackOrder />} />
         <Route path="/" element={
           <>
             <Navbar />
@@ -82,6 +90,7 @@ function App() {
             <Services />
             <Portfolio />
             <ContactPage />
+            <CTASection />
             <Footer />
           </>
         } />
