@@ -143,12 +143,35 @@ const OrderPage = () => {
           
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 sm:p-8 lg:p-10">
             <div className="text-center mb-8">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+              {/* Professional Badge */}
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-6 py-3 rounded-full mb-6 mx-auto">
+                <span className="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></span>
+                <span className="text-sm font-semibold">Proses Pemesanan Cepat & Aman</span>
+                <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></span>
+              </div>
+              
+              <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
                 Form Order Website
               </h2>
-              <p className="text-gray-600 text-sm sm:text-base">
-                Isi data Anda dan pilih paket yang sesuai
+              <p className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+                Isi data Anda dan pilih paket yang sesuai. Tim kami akan segera menghubungi Anda untuk konfirmasi lebih lanjut.
               </p>
+              
+              {/* Trust Indicators */}
+              <div className="flex items-center justify-center gap-8 mt-8">
+                <div className="flex items-center gap-2 text-green-600">
+                  <i className="fa-solid fa-shield-check"></i>
+                  <span className="text-xs">Aman & Terpercaya</span>
+                </div>
+                <div className="flex items-center gap-2 text-blue-600">
+                  <i className="fa-solid fa-bolt"></i>
+                  <span className="text-xs">Proses Cepat</span>
+                </div>
+                <div className="flex items-center gap-2 text-purple-600">
+                  <i className="fa-solid fa-comments"></i>
+                  <span className="text-xs">Dukungan 24/7</span>
+                </div>
+              </div>
             </div>
 
           <form onSubmit={handleCheckout} className="space-y-6">
@@ -212,11 +235,13 @@ const OrderPage = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">Pilih Paket</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <i className="fa-solid fa-box text-gray-400"></i>
+                  <div className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center">
+                    <i className="fa-solid fa-box text-xs"></i>
+                  </div>
                 </div>
                 <select
                   name="paket"
-                  className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 group-hover:border-indigo-300 appearance-none bg-white"
+                  className="w-full pl-14 pr-12 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 group-hover:border-indigo-300 appearance-none bg-white"
                   onChange={handlePaketChange}
                 >
                   {listPaket.map((p) => (
@@ -226,28 +251,47 @@ const OrderPage = () => {
                   ))}
                 </select>
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <i className="fa-solid fa-chevron-down text-gray-400"></i>
+                  <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
+                    <i className="fa-solid fa-tags text-xs"></i>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Tampilan Total Harga */}
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100">
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 shadow-lg">
               <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                    <i className="fa-solid fa-tag text-indigo-600"></i>
+                <div className="flex items-center space-x-4">
+                  <div className="w-14 h-14 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i className="fa-solid fa-receipt text-white text-2xl"></i>
                   </div>
                   <div>
-                    <span className="text-sm text-gray-600">Total Tagihan</span>
+                    <span className="text-sm text-gray-600 font-semibold">Total Tagihan</span>
                     <p className="text-xs text-gray-500">Termasuk semua fitur paket</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                        <i className="fa-solid fa-check text-green-600 mr-1"></i>
+                        Harga Final
+                      </span>
+                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                        <i className="fa-solid fa-shield-alt text-blue-600 mr-1"></i>
+                        Tanpa Biaya Tersembunyi
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl font-bold text-gray-900">
-                    Rp {Number(formData.harga).toLocaleString("id-ID")}
-                  </span>
-                  <p className="text-xs text-gray-500">Harga final</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center">
+                      <i className="fa-solid fa-coins text-sm"></i>
+                    </div>
+                    <div>
+                      <span className="text-3xl font-extrabold text-gray-900">
+                        Rp {Number(formData.harga).toLocaleString("id-ID")}
+                      </span>
+                      <p className="text-xs text-gray-500">Harga final</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -257,27 +301,47 @@ const OrderPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-4 px-6 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${loading 
+                className={`w-full py-4 px-6 rounded-xl font-bold text-white transition-all duration-500 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${loading 
                   ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl"}`}
+                  : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-2xl hover:shadow-3xl"}`}
               >
-                <div className="flex items-center justify-center space-x-3">
-                  <i className={`fa-solid ${loading ? "fa-spinner fa-spin" : "fa-credit-card"}`}></i>
-                  <span className="text-lg">{loading ? "Memproses..." : "Bayar Sekarang"}</span>
+                <div className="flex items-center justify-center space-x-4">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${loading ? 'bg-gray-300' : 'bg-white/20'}`}>
+                    <i className={`fa-solid ${loading ? "fa-spinner fa-spin" : "fa-credit-card"}`}></i>
+                  </div>
+                  <span className="text-xl font-bold">{loading ? "Memproses..." : "Bayar Sekarang"}</span>
+                  {!loading && (
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <i className="fa-solid fa-bolt"></i>
+                    </div>
+                  )}
                 </div>
                 {!loading && (
-                  <div className="text-xs opacity-80 mt-1">Proses pembayaran aman dan cepat</div>
+                  <div className="text-xs opacity-90 mt-2 flex items-center justify-center gap-4">
+                    <span className="flex items-center gap-2">
+                      <i className="fa-solid fa-shield-check text-green-300"></i>
+                      <span>Proses pembayaran aman</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <i className="fa-solid fa-bolt text-blue-300"></i>
+                      <span>Proses cepat</span>
+                    </span>
+                  </div>
                 )}
               </button>
               
-              <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
-                <div className="flex items-center space-x-2">
-                  <i className="fa-solid fa-shield-alt text-green-500"></i>
+              <div className="flex items-center justify-center space-x-6 text-xs text-gray-500">
+                <div className="flex items-center space-x-2 bg-green-50 px-3 py-2 rounded-full">
+                  <i className="fa-solid fa-shield-check text-green-500"></i>
                   <span>Aman & Terpercaya</span>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 bg-blue-50 px-3 py-2 rounded-full">
                   <i className="fa-solid fa-lock text-blue-500"></i>
                   <span>Enkripsi SSL</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-purple-50 px-3 py-2 rounded-full">
+                  <i className="fa-solid fa-credit-card text-purple-500"></i>
+                  <span>Multi Payment</span>
                 </div>
               </div>
             </div>

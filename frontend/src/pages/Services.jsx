@@ -59,35 +59,51 @@ export default function Services() {
     <section id="services" className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+          {/* Professional Badge */}
+          <div className="inline-flex items-center gap-3 bg-indigo-100 text-indigo-700 px-6 py-3 rounded-full mb-8 mx-auto">
+            <span className="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></span>
+            <span className="text-sm font-semibold">Layanan Profesional Berkualitas</span>
+            <span className="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></span>
+          </div>
+          
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
             Jasa <span className="text-indigo-600">Kami</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Pilih paket yang sesuai dengan kebutuhan Anda.
+          <p className="text-gray-600 max-w-3xl mx-auto text-lg leading-relaxed">
+            Pilih paket yang sesuai dengan kebutuhan bisnis Anda. Semua paket dilengkapi dengan fitur premium dan dukungan teknis profesional.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {packages.map((pkg, i) => (
             <div
               key={i}
-              className={`rounded-2xl h-fit p-8 transition-all duration-300 transform hover:-translate-y-2
+              className={`rounded-3xl h-fit p-8 transition-all duration-500 transform hover:-translate-y-3
                 ${
                   pkg.highlight
-                    ? "border-2 border-indigo-500 shadow-2xl relative"
-                    : "border border-gray-100 shadow-lg hover:shadow-xl"
+                    ? "border-2 border-indigo-500 shadow-2xl relative bg-white"
+                    : "border border-gray-100 shadow-xl hover:shadow-2xl bg-white"
                 }`}
             >
+              {/* Highlight Glow Effect */}
+              {pkg.highlight && (
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 -z-10"></div>
+              )}
+              
               {pkg.badge && (
                 <div
-                  className={`inline-block px-4 py-1 mb-6 text-sm font-semibold rounded-full
+                  className={`inline-block px-6 py-2 mb-6 text-sm font-bold rounded-full shadow-lg
                     ${
                       pkg.highlight
-                        ? "absolute top-0 right-0 bg-indigo-600 text-white rounded-bl-lg"
-                        : "bg-indigo-100 text-indigo-700"
+                        ? "absolute top-0 right-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-bl-3xl transform hover:scale-105"
+                        : "bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 transform hover:scale-105"
                     }`}
                 >
-                  {pkg.badge}
+                  <span className="flex items-center gap-2">
+                    <i className="fa-solid fa-star text-xs"></i>
+                    <span>{pkg.badge}</span>
+                    <i className="fa-solid fa-star text-xs"></i>
+                  </span>
                 </div>
               )}
 
@@ -101,24 +117,24 @@ export default function Services() {
 
               <ul className="space-y-4 mb-10">
                 {pkg.features.map((f, idx) => (
-                  <li key={idx} className="flex items-center text-gray-700">
-                    <svg className="w-5 h-5 text-indigo-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {f}
+                  <li key={idx} className="flex items-start text-gray-700 group">
+                    <div className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
+                      <i className="fa-solid fa-check text-xs"></i>
+                    </div>
+                    <span className="text-sm leading-relaxed">{f}</span>
                   </li>
                 ))}
               </ul>
 
               <a
                 href="/order"
-                className="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition"
+                className="block w-full text-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
-                Pilih Paket
+                <span className="flex items-center justify-center gap-3">
+                  <i className="fa-solid fa-shopping-cart"></i>
+                  <span>Pilih Paket</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </span>
               </a>
             </div>
           ))}

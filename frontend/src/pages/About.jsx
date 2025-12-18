@@ -10,34 +10,90 @@ export default function About() {
                 <div className="flex flex-col lg:flex-row items-start gap-12 md:gap-20">
                     <div className="lg:w-1/2">
 
-                        <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4">
+                        {/* Professional Badge */}
+                        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-6 py-3 rounded-full mb-8">
+                            <span className="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></span>
+                            <span className="text-sm font-semibold">Tim Profesional & Berpengalaman</span>
+                            <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></span>
+                        </div>
+
+                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6">
                             Tentang <span className="text-indigo-600">kami</span>
                         </h1>
 
-                        <div className="w-24 h-1 bg-indigo-500 rounded-full mb-12"></div>
+                        <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-12"></div>
 
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-8">
                             Kenapa Memilih Kami?
                         </h2>
 
-                        <div className="text-gray-700 space-y-6 mb-10 max-w-2xl">
+                        <div className="text-gray-700 space-y-8 mb-10 max-w-2xl">
                             <p className="text-base sm:text-lg leading-relaxed">
-                                Kami adalah tim siswa SMKS Muhammadiyah 1 Genteng yang fokus pada hasil nyata — menguasai frontend dan backend, serta mampu mengintegrasikan teknologi AI untuk mempercepat dan mempermudah proses pembuatan website. Kami mengutamakan komunikasi yang jelas, solusi yang mudah dipelihara, dan penyelesaian tepat waktu. Percayakan proyek Anda pada tim muda yang profesional, bertanggung jawab, dan hasil-orientasi.
+                                Kami adalah tim profesional dari SMKS Muhammadiyah 1 Genteng yang fokus pada hasil nyata — menguasai frontend dan backend, serta mampu mengintegrasikan teknologi AI untuk mempercepat dan mempermudah proses pembuatan website. Kami mengutamakan komunikasi yang jelas, solusi yang mudah dipelihara, dan penyelesaian tepat waktu.
                             </p>
 
                             <p className="text-base sm:text-lg leading-relaxed">
                                 Dengan pengalaman dalam berbagai proyek, kami memahami kebutuhan bisnis modern dan siap membantu Anda mencapai tujuan digital Anda. Mari bekerja sama untuk menciptakan website yang tidak hanya menarik secara visual, tetapi juga fungsional dan efektif dalam mendukung pertumbuhan bisnis Anda.
                             </p>
+
+                            {/* Key Features */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                                <div className="flex items-start space-x-3">
+                                    <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i className="fa-solid fa-bolt text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900">Cepat & Efisien</h4>
+                                        <p className="text-sm text-gray-600">Penyelesaian tepat waktu dengan teknologi terkini</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start space-x-3">
+                                    <div className="w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i className="fa-solid fa-shield-alt text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900">Berkualitas Tinggi</h4>
+                                        <p className="text-sm text-gray-600">Standar profesional dan teruji</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start space-x-3">
+                                    <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i className="fa-solid fa-comments text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900">Komunikasi Lancar</h4>
+                                        <p className="text-sm text-gray-600">Dukungan 24/7 dan respons cepat</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start space-x-3">
+                                    <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                        <i className="fa-solid fa-robot text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-gray-900">Integrasi AI</h4>
+                                        <p className="text-sm text-gray-600">Teknologi modern untuk hasil optimal</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <a href="#portfolio" className="group flex items-center space-x-3 text-indigo-600 hover:text-indigo-800 font-bold text-lg transition-colors">
-                            <span className="border-b-2 border-indigo-600 group-hover:border-indigo-800 pb-1">
-                                Lihat Portfolio
-                            </span>
-                            <span className="transform group-hover:translate-x-2 transition-transform">
-                                →
-                            </span>
-                        </a>
+                        <div className="flex flex-wrap gap-4 mt-8">
+                            <a href="#portfolio" className="group flex items-center space-x-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                <span className="flex items-center gap-2">
+                                    <i className="fa-solid fa-portrait"></i>
+                                    <span>Lihat Portfolio</span>
+                                </span>
+                                <span className="transform group-hover:translate-x-2 transition-transform">
+                                    →
+                                </span>
+                            </a>
+                            <a href="/order" className="flex items-center space-x-3 border-2 border-indigo-600 text-indigo-600 bg-white hover:bg-indigo-600 hover:text-white font-bold py-3 px-6 rounded-full transition-all duration-300">
+                                <span className="flex items-center gap-2">
+                                    <i className="fa-solid fa-shopping-cart"></i>
+                                    <span>Pesan Sekarang</span>
+                                </span>
+                            </a>
+                        </div>
 
                     </div>
 

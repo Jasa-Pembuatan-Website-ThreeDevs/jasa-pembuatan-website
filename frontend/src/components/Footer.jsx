@@ -14,9 +14,9 @@ const quickLinks = [
 ];
 
 const ourServices = [
-    { name: "Basic", href: "#" },
-    { name: "Pro", href: "#" },
-    { name: "Advance", href: "#" },
+    { name: "Tiny", href: "#" },
+    { name: "Medium", href: "#" },
+    { name: "Pro+", href: "#" },
 ];
 
 const policyLinks = [

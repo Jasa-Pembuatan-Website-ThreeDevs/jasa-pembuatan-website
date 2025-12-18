@@ -48,45 +48,92 @@ export default function Faq() {
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-50 rounded-full translate-y-48 -translate-x-48"></div>
 
             <div className="container mx-auto px-6 py-12 md:py-24 relative z-10">
-                <div className="max-w-4xl mx-auto">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4 text-center">
+<div className="max-w-4xl mx-auto">
+                {/* Professional Badge */}
+                <div className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-6 py-3 rounded-full mb-8 mx-auto">
+                    <span className="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></span>
+                    <span className="text-sm font-semibold">Butuh Bantuan? Temukan Jawabannya di Sini</span>
+                    <span className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></span>
+                </div>
+
+                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-6 text-center">
                         Pertanyaan yang <span className="text-indigo-600">Sering Diajukan</span>
                     </h1>
 
-                    <div className="w-24 h-1 bg-indigo-500 rounded-full mb-12 mx-auto"></div>
-
-                    <div className="space-y-4">
+                    <div className="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full mb-12 mx-auto"></div>                    <div className="space-y-4">
                         {faqData.map((item, index) => (
-                            <div key={index} className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                            <div key={index} className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-indigo-200">
                                 <button
-                                    className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-indigo-50 transition-colors"
+                                    className="w-full px-6 py-5 text-left flex items-center justify-between hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-300"
                                     onClick={() => toggleFAQ(index)}
                                 >
-                                    <span className="text-lg font-semibold text-gray-800">
-                                        {item.question}
-                                    </span>
-                                    <span className={`transform transition-transform ${openIndex === index ? 'rotate-180' : ''}`}>
-                                        <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </span>
+                                    <div className="flex items-center space-x-4">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${openIndex === index ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                            <i className="fa-solid fa-question text-sm"></i>
+                                        </div>
+                                        <span className="text-lg font-semibold text-gray-900">
+                                            {item.question}
+                                        </span>
+                                    </div>
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${openIndex === index ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                        <i className={`fa-solid ${openIndex === index ? 'fa-minus' : 'fa-plus'} text-sm`}></i>
+                                    </div>
                                 </button>
-                                <div className={`px-6 pb-4 transition-all duration-300 ${openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+                                <div className={`px-6 pb-6 transition-all duration-500 ease-in-out ${openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                                     <div className="pt-2 pb-4 text-gray-600 leading-relaxed">
                                         {item.answer}
                                     </div>
+                                    {openIndex === index && (
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                                <span className="text-xs text-gray-500">Jawaban lengkap tersedia</span>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <i className="fa-solid fa-lightbulb text-yellow-500"></i>
+                                                <span className="text-xs text-gray-500">Butuh bantuan lebih?</span>
+                                                <a href="/#contact" className="text-indigo-600 hover:text-indigo-800 text-xs font-semibold">Hubungi Kami</a>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-12 text-center">
-                        <p className="text-gray-600 mb-6">
-                            Masih memiliki pertanyaan? Jangan ragu untuk menghubungi kami!
-                        </p>
-                        <a href="/#contact" className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-full transition-colors shadow-md">
-                            Hubungi Kami
-                        </a>
+                    <div className="mt-16 text-center">
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-3xl p-8 border border-indigo-100 shadow-lg">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Masih memiliki pertanyaan?</h3>
+                            <p className="text-gray-600 mb-8 text-lg max-w-2xl mx-auto">
+                                Jangan ragu untuk menghubungi kami. Tim support kami siap membantu Anda 24/7 dengan respons cepat dan solusi profesional.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <a href="/#contact" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                    <span className="flex items-center justify-center gap-3">
+                                        <i className="fa-solid fa-headset"></i>
+                                        <span>Hubungi Support</span>
+                                    </span>
+                                </a>
+                                <a href="/order" className="flex items-center justify-center gap-3 border-2 border-indigo-600 text-indigo-600 bg-white hover:bg-indigo-600 hover:text-white font-bold py-4 px-8 rounded-full transition-all duration-300">
+                                    <i className="fa-solid fa-shopping-cart"></i>
+                                    <span>Pesan Sekarang</span>
+                                </a>
+                            </div>
+                            <div className="flex items-center justify-center gap-8 mt-8 text-sm text-gray-500">
+                                <div className="flex items-center gap-2">
+                                    <i className="fa-solid fa-clock text-indigo-500"></i>
+                                    <span>Respon cepat 24/7</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <i className="fa-solid fa-comments text-purple-500"></i>
+                                    <span>Konsultasi gratis</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <i className="fa-solid fa-shield-alt text-green-500"></i>
+                                    <span>Garansi kepuasan</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
