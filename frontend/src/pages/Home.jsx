@@ -60,7 +60,7 @@ export default function Home() {
     }, []);
 
     return (
-        <div ref={containerRef} className="min-h-screen bg-white pt-16">
+        <div ref={containerRef} className="bg-white pt-16">
             <section id="home" className="container mx-auto px-4 py-8 md:py-10">
                 <div className="flex flex-col lg:flex-row items-center">
                     <div className="flex flex-col items-center mb-10 w-full lg:mb-0">

@@ -19,6 +19,7 @@ import CTASection from './components/CTASection'
 import ProjectDetail from './pages/ProjectDetail'
 import TrackOrder from './pages/TrackOrder'
 import Admin from './Dashboard-admin'
+import LoginAdmin from './pages/LoginAdmin'
 
 function App() {
  const [isMaintenance, setIsMaintenance] = useState(false);
@@ -96,6 +97,7 @@ function App() {
           </>
         } />
         <Route path="/dashboard/admin" element={<Admin />} />
+        <Route path="/login/admin" element={<LoginAdmin />} />
         
         {/* Catch-all route for 404 Not Found */}
         <Route path="*" element={<NotFound />} />
