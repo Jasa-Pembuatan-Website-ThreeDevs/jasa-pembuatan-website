@@ -19,7 +19,9 @@ return new class extends Migration
         $table->string('no_hp');
         $table->string('paket_layanan'); 
         $table->integer('total_harga'); 
-        $table->string('status')->default('pending'); 
+        $table->enum('status', [
+            'pending', 'paid', 'failed', 'expired'
+        ])->default('pending'); 
         $table->string('snap_token')->nullable(); 
         $table->timestamps();
         });

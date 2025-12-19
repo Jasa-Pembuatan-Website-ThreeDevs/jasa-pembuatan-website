@@ -45,7 +45,13 @@ Route::get('/orders', function () {
 
 Route::post('/payment', [PaymentController::class, 'createTransaction']);
 
-Route::prefix('admin')->group(function () {
+// Public admin login (returns sanctum token)
+Route::post('/admin/login', [\App\Http\Controllers\AdminAuthController::class, 'login']);
+
+// NOTE: temporarily using only 'auth:sanctum' here to avoid errors when
+// Spatie permission tables are not migrated. Run the Spatie migrations and
+// restore 'role:admin' middleware when ready.
+Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
     // List semua order (Pemasukan)
     Route::get('/orders', [OrderController::class, 'index']);
     
@@ -57,7 +63,6 @@ Route::prefix('admin')->group(function () {
     
     // Update order (Ganti status jadi lunas manual)
     Route::put('/orders/{id}', [OrderController::class, 'update']);
-    
     // Hapus order
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
     
@@ -74,6 +79,20 @@ Route::prefix('admin')->group(function () {
 
     // API Summary Pengeluaran
     Route::get('/expense-summary', [PengeluaranController::class, 'expenseSummary']);
+
+    // Income endpoints (wrapper around orders)
+    Route::get('/income', [\App\Http\Controllers\IncomeController::class, 'index']);
+    Route::get('/income/summary', [\App\Http\Controllers\IncomeController::class, 'summary']);
+
+    // Analytics endpoints for frontend charts
+    Route::get('/analytics/sales', [\App\Http\Controllers\AnalyticsController::class, 'salesTrend']);
+    Route::get('/analytics/top-categories', [\App\Http\Controllers\AnalyticsController::class, 'topCategories']);
+    Route::get('/analytics/expenses', [\App\Http\Controllers\AnalyticsController::class, 'expenseTrend']);
+    Route::get('/analytics/income-vs-expense', [\App\Http\Controllers\AnalyticsController::class, 'incomeVsExpense']);
+
+    // Admin auth actions
+    Route::post('/logout', [\App\Http\Controllers\AdminAuthController::class, 'logout']);
 });
 
-Route::post('/track-order', [OrderController::class, 'checkStatus']);
+// Maksimal 60 request per menit per IP
+Route::middleware('throttle:60,1')->post('/track-order', [OrderController::class, 'checkStatus']);

@@ -40,7 +40,8 @@ class OrderController extends Controller
             'nama_pelanggan' => 'required',
             'paket_layanan' => 'required',
             'total_harga' => 'required|numeric',
-            'status' => 'required|in:pending,paid,failed', // Admin bisa langsung set 'paid'
+            // Sesuaikan dengan enum di migration: pending, paid, failed, expired
+            'status' => 'required|in:pending,paid,failed,expired', // Admin bisa langsung set 'paid'
             'tanggal' => 'date', // Opsional, default hari ini
         ]);
 
@@ -68,9 +69,9 @@ class OrderController extends Controller
     /**
      * 3. SHOW: Lihat detail 1 order
      */
-    public function show($id)
+    public function show()
     {
-        $order = Order::find($id);
+        $order = Order::all();
 
         if (!$order) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
@@ -93,7 +94,8 @@ class OrderController extends Controller
 
         // Validasi apa yang mau diubah
         $request->validate([
-            'status' => 'in:pending,paid,failed,cancelled',
+            // Sesuaikan dengan enum di migration: pending, paid, failed, expired
+            'status' => 'in:pending,paid,failed,expired',
             'total_harga' => 'numeric',
         ]);
 

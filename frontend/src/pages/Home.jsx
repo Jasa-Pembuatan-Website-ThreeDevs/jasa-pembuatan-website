@@ -1,10 +1,10 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, Suspense } from 'react';
 import { useSmoothScroll } from '../hooks/useSmoothScroll';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Marque from '../components/marque-home';
-import Chatbot from '../components/Chatbot';
+const Chatbot = React.lazy(() => import('../components/Chatbot'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -92,7 +92,9 @@ export default function Home() {
                 </div>
             </section>
             
-            <Chatbot />
+            <Suspense fallback={null}>
+                <Chatbot />
+            </Suspense>
         </div>
     );
 };
