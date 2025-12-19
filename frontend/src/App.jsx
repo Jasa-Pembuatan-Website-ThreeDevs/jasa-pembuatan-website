@@ -18,6 +18,7 @@ import Terms from './pages/Terms'
 import CTASection from './components/CTASection'
 import ProjectDetail from './pages/ProjectDetail'
 import TrackOrder from './pages/TrackOrder'
+import Admin from './Dashboard-admin'
 
 function App() {
  const [isMaintenance, setIsMaintenance] = useState(false);
@@ -94,6 +95,7 @@ function App() {
             <Footer />
           </>
         } />
+        <Route path="/dashboard/admin" element={<Admin />} />
         
         {/* Catch-all route for 404 Not Found */}
         <Route path="*" element={<NotFound />} />
