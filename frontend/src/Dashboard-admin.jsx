@@ -6,7 +6,7 @@ const AdminDashboard = () => {
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
     const admin = "Dannys";
-    const inisial = "BS";
+    const inisial = "D";
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex">

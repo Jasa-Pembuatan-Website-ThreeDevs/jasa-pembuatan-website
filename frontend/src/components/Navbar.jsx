@@ -66,8 +66,8 @@ export default function Navbar() {
                     <div className="w-10 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
                         <span className="text-white font-bold text-lg">TD</span>
                     </div>
-                    <div>
-                        <span className="text-xl sm:text-2xl font-bold tracking-wide bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                    <div className="flex justify-center items-center">
+                        <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                             ThreeDev
                         </span>
                         <div className="w-16 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
@@ -85,8 +85,7 @@ export default function Navbar() {
                     </svg>
                 </button>
 
-                <nav ref={navRef} className="hidden md:flex items-center space-x-4 sm:space-x-6">
-                
+                <nav ref={navRef} className="hidden md:flex items-center">
                     {[
                         { icon: "fa-house", text: "Home", link: "/#" },
                         { icon: "fa-circle-info", text: "About", link: "#about" },
