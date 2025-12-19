@@ -17,7 +17,7 @@ const Terms = () => {
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-2">2. Revisi</h2>
-            <p>Klien berhak mendapatkan revisi minor sebanyak maksimal 3 (tiga) kali. Revisi major (perubahan total layout/fitur) akan dikenakan biaya tambahan.</p>
+            <p>Klien berhak mendapatkan revisi minor sebanyak maksimal 2 (tiga) kali. Revisi major (perubahan total layout/fitur) akan dikenakan biaya tambahan.</p>
           </section>
 
           <section>

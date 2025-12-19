@@ -1,14 +1,37 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const LoginAdmin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = (e) => {
+    const navigate = useNavigate();
+
+    const handleLogin = async (e) => {
         e.preventDefault();
-        console.log("Logging in with:", email, password);
-        // Logika login lu di sini
+
+        try {
+            const res = await axios.post('http://localhost:8000/api/admin/login', {
+                email,
+                password,
+            });
+
+            if (res.data && res.data.token) {
+                // Simpan token dan user info
+                localStorage.setItem('admin_token', res.data.token);
+                if (res.data.user && res.data.user.name) {
+                    localStorage.setItem('admin_name', res.data.user.name);
+                }
+
+                // Redirect ke dashboard
+                navigate('/dashboard/admin');
+            }
+        } catch (err) {
+            console.error('Login failed', err);
+            alert(err.response?.data?.message || 'Login gagal. Periksa kredensial.');
+        }
     };
 
     return (

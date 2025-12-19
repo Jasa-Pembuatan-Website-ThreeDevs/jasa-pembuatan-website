@@ -1,12 +1,212 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AnalistikChart from "./components/AnalistikChart";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
     const [page, setPage] = useState("dashboard");
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-    const admin = "Dannys";
-    const inisial = "D";
+    const navigate = useNavigate();
+
+    const [admin, setAdmin] = useState('Admin');
+    const [inisial, setInisial] = useState('A');
+
+    const [incomeSummary, setIncomeSummary] = useState(null);
+    const [orders, setOrders] = useState([]);
+    const [expenses, setExpenses] = useState([]);
+    const [expenseSummary, setExpenseSummary] = useState(null);
+    const [financeRecords, setFinanceRecords] = useState([]); // combined incomes + expenses for table
+
+    // Form state for Catatan Keuangan
+    const [financeType, setFinanceType] = useState('Income');
+    const [nominal, setNominal] = useState('');
+    const [keterangan, setKeterangan] = useState('');
+    const [kategori, setKategori] = useState('operasional');
+
+    // Load dashboard data
+    useEffect(() => {
+        const token = localStorage.getItem('admin_token');
+        const name = localStorage.getItem('admin_name');
+
+        if (!token) {
+            // Not logged in
+            navigate('/login/admin');
+            return;
+        }
+
+        if (name) {
+            setAdmin(name);
+            setInisial(name.charAt(0).toUpperCase());
+        }
+
+        const getApi = () => axios.create({ baseURL: 'http://localhost:8000/api', headers: { Authorization: `Bearer ${token}` } });
+
+        const fetchSummary = async () => {
+            try {
+                const res = await getApi().get('/admin/income-summary');
+                setIncomeSummary(res.data || null);
+            } catch (err) {
+                console.error('Failed to fetch income summary', err);
+            }
+        };
+
+        const fetchOrders = async () => {
+            try {
+                const res = await getApi().get('/admin/orders');
+                setOrders(res.data.data || res.data || []);
+            } catch (err) {
+                console.error('Failed to fetch orders', err);
+            }
+        };
+
+        const fetchExpenses = async () => {
+            try {
+                const res = await getApi().get('/admin/expenses');
+                setExpenses(res.data.data || res.data || []);
+            } catch (err) {
+                console.error('Failed to fetch expenses', err);
+            }
+        };
+
+        const fetchExpenseSummary = async () => {
+            try {
+                const res = await getApi().get('/admin/expense-summary');
+                setExpenseSummary(res.data || null);
+            } catch (err) {
+                console.error('Failed to fetch expense summary', err);
+            }
+        };
+
+        // Combined fetch for table: incomes and expenses
+        const fetchFinanceRecords = async () => {
+            try {
+                const [incRes, expRes] = await Promise.all([
+                    getApi().get('/admin/income').catch(e => ({ data: [] })),
+                    getApi().get('/admin/expenses').catch(e => ({ data: [] })),
+                ]);
+
+                const incomes = incRes.data.data || incRes.data || [];
+                const exps = expRes.data.data || expRes.data || [];
+
+                // Normalize records with a common shape
+                const normIncomes = incomes.map(i => ({
+                    id: i.id,
+                    type: 'Income',
+                    description: i.paket_layanan || i.nama_pelanggan || '-',
+                    nominal: i.total_harga || i.total || i.amount || 0,
+                    tanggal: i.created_at || i.tanggal || null,
+                    raw: i,
+                }));
+
+                const normExpenses = exps.map(e => ({
+                    id: e.id,
+                    type: 'Expenses',
+                    description: e.judul || e.keterangan || '-',
+                    nominal: e.jumlah || 0,
+                    tanggal: e.tanggal_pengeluaran || e.created_at || null,
+                    raw: e,
+                }));
+
+                const all = normIncomes.concat(normExpenses).sort((a, b) => new Date(b.tanggal || 0) - new Date(a.tanggal || 0));
+                setFinanceRecords(all);
+            } catch (err) {
+                console.error('Failed to fetch finance records', err);
+            }
+        };
+
+        fetchSummary();
+        fetchOrders();
+        fetchExpenses();
+        fetchExpenseSummary();
+        fetchFinanceRecords();
+    }, [navigate]);
+
+    // Handler for submitting the finance form
+    const handleFinanceSubmit = async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem('admin_token');
+        if (!token) {
+            navigate('/login/admin');
+            return;
+        }
+
+        const api = axios.create({ baseURL: 'http://localhost:8000/api', headers: { Authorization: `Bearer ${token}` } });
+
+        try {
+            if (financeType === 'Income') {
+                // create a manual order (treated as income)
+                const payload = {
+                    nama_pelanggan: keterangan || 'Manual Income',
+                    paket_layanan: keterangan || 'Manual',
+                    total_harga: Number(nominal) || 0,
+                    status: 'paid',
+                };
+
+                await api.post('/admin/orders', payload);
+            } else {
+                // create expense
+                const payload = {
+                    judul: keterangan || 'Pengeluaran Manual',
+                    jumlah: Number(nominal) || 0,
+                    kategori: kategori || 'operasional',
+                    vendor: '-',
+                    no_referensi: '-',
+                    tanggal_pengeluaran: new Date().toISOString().split('T')[0],
+                };
+
+                await api.post('/admin/expenses', payload);
+            }
+
+            // clear form
+            setNominal('');
+            setKeterangan('');
+
+            // refresh data
+            try { const r = await api.get('/admin/income-summary'); setIncomeSummary(r.data || null); } catch(_){}
+            try { const r = await api.get('/admin/expense-summary'); setExpenseSummary(r.data || null); } catch(_){}
+            try { const r = await api.get('/admin/orders'); setOrders(r.data.data || r.data || []); } catch(_){}
+            try { const r = await api.get('/admin/expenses'); setExpenses(r.data.data || r.data || []); } catch(_){}
+
+            // refresh combined list
+            try {
+                const [incRes, expRes] = await Promise.all([
+                    api.get('/admin/income').catch(e => ({ data: [] })),
+                    api.get('/admin/expenses').catch(e => ({ data: [] })),
+                ]);
+                const incomes = incRes.data.data || incRes.data || [];
+                const exps = expRes.data.data || expRes.data || [];
+                const normIncomes = incomes.map(i => ({ id: i.id, type: 'Income', description: i.paket_layanan || i.nama_pelanggan || '-', nominal: i.total_harga || 0, tanggal: i.created_at || null, raw: i }));
+                const normExpenses = exps.map(e => ({ id: e.id, type: 'Expenses', description: e.judul || '-', nominal: e.jumlah || 0, tanggal: e.tanggal_pengeluaran || null, raw: e }));
+                const all = normIncomes.concat(normExpenses).sort((a,b)=> new Date(b.tanggal||0)-new Date(a.tanggal||0));
+                setFinanceRecords(all);
+            } catch (_) {}
+
+        } catch (err) {
+            console.error('Failed to save finance record', err);
+            alert('Gagal menyimpan data. Cek konsol untuk detail.');
+        }
+    };
+
+    // delete handler for a finance record
+    const handleDeleteRecord = async (record) => {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return;
+        const api = axios.create({ baseURL: 'http://localhost:8000/api', headers: { Authorization: `Bearer ${token}` } });
+        try {
+            if (record.type === 'Expenses') {
+                await api.delete(`/admin/expenses/${record.id}`);
+            } else {
+                await api.delete(`/admin/orders/${record.id}`);
+            }
+            // remove locally
+            setFinanceRecords(prev => prev.filter(r => !(r.id === record.id && r.type === record.type)));
+        } catch (err) {
+            console.error('Failed to delete record', err);
+            alert('Gagal menghapus data.');
+        }
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-800 flex">
@@ -18,7 +218,7 @@ const AdminDashboard = () => {
       `}
             >
                 <div className="p-6 text-xl font-bold text-indigo-600 border-b border-slate-50">
-                    Dannys
+                    ThreeDevs
                 </div>
 
                 <nav className="p-4 space-y-2">
@@ -109,9 +309,28 @@ const AdminDashboard = () => {
                         <span className="hidden sm:block text-sm font-bold text-slate-700">
                             {admin}
                         </span>
-                        <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-100">
-                            {inisial}
-                        </div>
+                            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-100">
+                                {inisial}
+                            </div>
+                            <button
+                                title="Logout"
+                                onClick={async () => {
+                                    const token = localStorage.getItem('admin_token');
+                                    try {
+                                        await axios.post('http://localhost:8000/api/admin/logout', {}, {
+                                            headers: { Authorization: `Bearer ${token}` }
+                                        });
+                                    } catch (e) {
+                                        // ignore errors, we'll clear local state anyway
+                                    }
+                                    localStorage.removeItem('admin_token');
+                                    localStorage.removeItem('admin_name');
+                                    navigate('/login/admin');
+                                }}
+                                className="ml-3 text-sm bg-rose-50 text-rose-600 px-3 py-1 rounded-lg hover:bg-rose-100 transition"
+                            >
+                                Logout
+                            </button>
                     </div>
                 </header>
 
@@ -150,7 +369,7 @@ const AdminDashboard = () => {
                                         Total Order
                                     </p>
                                     <p className="text-2xl font-bold text-slate-800">
-                                        1,284
+                                        {orders ? orders.length : '—'}
                                     </p>
                                 </div>
 
@@ -167,7 +386,7 @@ const AdminDashboard = () => {
                                         Omzet Hari Ini
                                     </p>
                                     <p className="text-2xl font-bold text-slate-800">
-                                        Rp 4.2jt
+                                        {incomeSummary ? `Rp ${Number(incomeSummary.total_income || 0).toLocaleString('id-ID')}` : '—'}
                                     </p>
                                 </div>
 
@@ -184,7 +403,7 @@ const AdminDashboard = () => {
                                         Pelanggan Baru
                                     </p>
                                     <p className="text-2xl font-bold text-slate-800">
-                                        48
+                                        {orders ?  (orders.filter(o => new Date(o.created_at) >= new Date(Date.now() - 1000*60*60*24)).length) : '—'}
                                     </p>
                                 </div>
 
@@ -220,30 +439,37 @@ const AdminDashboard = () => {
                                         </button>
                                     </div>
                                     <div className="space-y-4">
-                                        {[1, 2, 3].map(item => (
-                                            <div
-                                                key={item}
-                                                className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                                                        <i className="fa-solid fa-user text-xs"></i>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-slate-700">
-                                                            Customer #{item}20
-                                                            {item}
+                                        {orders && orders.length > 0 ? (
+                                            orders
+                                                .slice()
+                                                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                                                .slice(0, 3)
+                                                .map((o) => (
+                                                    <div
+                                                        key={o.id}
+                                                        className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition"
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                                                                <i className="fa-solid fa-user text-xs"></i>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-sm font-bold text-slate-700">
+                                                                    {o.customer_name || o.name || `Customer #${o.id}`}
+                                                                </p>
+                                                                <p className="text-[10px] text-slate-400">
+                                                                    {new Date(o.created_at).toLocaleString()}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-sm font-bold text-slate-800">
+                                                            {o.total ? `Rp ${Number(o.total).toLocaleString('id-ID')}` : (o.amount ? `Rp ${Number(o.amount).toLocaleString('id-ID')}` : '—')}
                                                         </p>
-                                                        <p className="text-[10px] text-slate-400">
-                                                            2 menit yang lalu
-                                                        </p>
                                                     </div>
-                                                </div>
-                                                <p className="text-sm font-bold text-slate-800">
-                                                    Rp 250.000
-                                                </p>
-                                            </div>
-                                        ))}
+                                                ))
+                                        ) : (
+                                            <p className="text-sm text-slate-400">Belum ada transaksi</p>
+                                        )}
                                     </div>
                                 </div>
 
@@ -278,6 +504,7 @@ const AdminDashboard = () => {
                                     <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold uppercase tracking-wider">
                                         <tr>
                                             <th className="p-4">ID Order</th>
+                                            <th className="p-4">Order Id</th>
                                             <th className="p-4">Customer</th>
                                             <th className="p-4 text-right">
                                                 Status
@@ -285,19 +512,29 @@ const AdminDashboard = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
-                                        <tr className="hover:bg-slate-50 transition">
-                                            <td className="p-4 font-bold text-indigo-600">
-                                                #9921
-                                            </td>
-                                            <td className="p-4 font-medium">
-                                                Andi Wijaya
-                                            </td>
-                                            <td className="p-4 text-right">
-                                                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase">
-                                                    Success
-                                                </span>
-                                            </td>
-                                        </tr>
+                                        {orders && orders.length > 0 ? (
+                                            orders.map(o => (
+                                                <tr key={o.id} className="hover:bg-slate-50 transition">
+                                                    <td className="p-4 font-bold text-indigo-600">#{o.id}</td>
+                                                    <td className="text-xs text-slate-500">{o.order_id}</td>
+                                                    <td className="p-4 font-medium">
+                                                        <div className="text-sm font-bold">{o.customer_name || o.name || `Customer #${o.id}`}</div>
+                                                        <div className="text-xs text-slate-500">{o.email || '-'}</div>
+                                                        <div className="text-xs text-slate-500">{o.paket_layanan || '-'}</div>
+                                                        <div className="text-xs text-slate-500">{o.no_hp || '-'}</div>
+                                                    </td>
+                                                    <td className="p-4 text-right">
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${o.status === 'paid' ? 'bg-green-100 text-green-700' : o.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-rose-100 text-rose-700'}`}>
+                                                            {o.status || '-'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={3} className="p-4 text-sm text-slate-400">Belum ada order</td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -320,43 +557,39 @@ const AdminDashboard = () => {
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 italic">
                                     Tambah Data Baru
                                 </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <form onSubmit={handleFinanceSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold ml-1 text-slate-500">
-                                            TIPE
-                                        </label>
-                                        <select className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none focus:border-indigo-500 text-sm transition">
+                                        <label className="text-[10px] font-bold ml-1 text-slate-500">TIPE</label>
+                                        <select value={financeType} onChange={(e)=>setFinanceType(e.target.value)} className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none focus:border-indigo-500 text-sm transition">
                                             <option>Income</option>
                                             <option>Expenses</option>
                                         </select>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold ml-1 text-slate-500">
-                                            NOMINAL
-                                        </label>
-                                        <input
-                                            type="number"
-                                            placeholder="Rp 0"
-                                            className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none focus:border-indigo-500 text-sm transition"
-                                        />
+                                        <label className="text-[10px] font-bold ml-1 text-slate-500">NOMINAL</label>
+                                        <input value={nominal} onChange={(e)=>setNominal(e.target.value)} type="number" placeholder="Rp 0" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none focus:border-indigo-500 text-sm transition" />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold ml-1 text-slate-500">
-                                            KETERANGAN
-                                        </label>
-                                        <input
-                                            type="text"
-                                            placeholder="Contoh: Bayar Listrik"
-                                            className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none focus:border-indigo-500 text-sm transition"
-                                        />
+                                        <label className="text-[10px] font-bold ml-1 text-slate-500">KETERANGAN</label>
+                                        <input value={keterangan} onChange={(e)=>setKeterangan(e.target.value)} type="text" placeholder="Contoh: Bayar Listrik" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none focus:border-indigo-500 text-sm transition" />
                                     </div>
                                     <div className="flex items-end">
-                                        <button className="w-full bg-indigo-600 text-white h-[46px] rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
-                                            <i className="fa-solid fa-plus mr-2"></i>{" "}
-                                            Simpan
-                                        </button>
+                                        <div className="w-full">
+                                            <label className="text-[10px] font-bold ml-1 text-slate-500">KATEGORI (untuk Expenses)</label>
+                                            <select value={kategori} onChange={(e)=>setKategori(e.target.value)} className="w-full mt-1 bg-slate-50 border border-slate-200 p-3 rounded-xl outline-none focus:border-indigo-500 text-sm transition">
+                                                <option value="operasional">operasional</option>
+                                                <option value="server">server</option>
+                                                <option value="domain">domain</option>
+                                                <option value="marketing">marketing</option>
+                                                <option value="gaji">gaji</option>
+                                                <option value="lainnya">lainnya</option>
+                                            </select>
+                                            <button type="submit" className="mt-3 w-full bg-indigo-600 text-white h-[46px] rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
+                                                <i className="fa-solid fa-plus mr-2"></i> Simpan
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
+                                </form>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -365,7 +598,7 @@ const AdminDashboard = () => {
                                         Total Income
                                     </p>
                                     <p className="text-2xl font-bold text-slate-800">
-                                        Rp 12.500.000
+                                        {incomeSummary ? `Rp ${Number(incomeSummary.total_income || 0).toLocaleString('id-ID')}` : 'Rp 0'}
                                     </p>
                                 </div>
                                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-l-8 border-indigo-600">
@@ -373,7 +606,7 @@ const AdminDashboard = () => {
                                         Total Expenses
                                     </p>
                                     <p className="text-2xl font-bold text-slate-800">
-                                        Rp 4.200.000
+                                        {expenseSummary ? `Rp ${Number(expenseSummary.total_expenses || 0).toLocaleString('id-ID')}` : 'Rp 0'}
                                     </p>
                                 </div>
                             </div>
@@ -385,54 +618,35 @@ const AdminDashboard = () => {
                                             <th className="p-4">Keterangan</th>
                                             <th className="p-4">Tipe</th>
                                             <th className="p-4">Nominal</th>
-                                            <th className="p-4 text-center">
-                                                Aksi
-                                            </th>
+                                            <th className="p-4 text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
-                                        <tr className="hover:bg-slate-50 transition group">
-                                            <td className="p-4 text-sm font-semibold text-slate-700">
-                                                Penjualan Produk A
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md text-[10px] font-bold uppercase">
-                                                    Income
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-sm font-bold text-indigo-600">
-                                                Rp 500.000
-                                            </td>
-                                            <td className="p-4 flex justify-center gap-3">
-                                                <button className="text-slate-300 hover:text-indigo-600 transition">
-                                                    <i className="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button className="text-slate-300 hover:text-red-500 transition">
-                                                    <i className="fa-solid fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr className="hover:bg-slate-50 transition group">
-                                            <td className="p-4 text-sm font-semibold text-slate-700">
-                                                Beli Token Listrik
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="bg-red-50 text-red-600 px-2 py-1 rounded-md text-[10px] font-bold uppercase">
-                                                    Expenses
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-sm font-bold text-red-600">
-                                                Rp 100.000
-                                            </td>
-                                            <td className="p-4 flex justify-center gap-3">
-                                                <button className="text-slate-300 hover:text-indigo-600 transition">
-                                                    <i className="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button className="text-slate-300 hover:text-red-500 transition">
-                                                    <i className="fa-solid fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        {financeRecords && financeRecords.length > 0 ? (
+                                            financeRecords.map(r => (
+                                                <tr key={`${r.type}-${r.id}`} className="hover:bg-slate-50 transition group">
+                                                    <td className="p-4 text-sm font-semibold text-slate-700">{r.description}</td>
+                                                    <td className="p-4">
+                                                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${r.type === 'Income' ? 'bg-indigo-50 text-indigo-600' : 'bg-red-50 text-red-600'}`}>
+                                                            {r.type}
+                                                        </span>
+                                                    </td>
+                                                    <td className={`p-4 text-sm font-bold ${r.type === 'Income' ? 'text-indigo-600' : 'text-red-600'}`}>Rp {Number(r.nominal || 0).toLocaleString('id-ID')}</td>
+                                                    <td className="p-4 flex justify-center gap-3">
+                                                        <button onClick={()=>{ /* TODO: implement edit later */ }} className="text-slate-300 hover:text-indigo-600 transition">
+                                                            <i className="fa-solid fa-pen-to-square"></i>
+                                                        </button>
+                                                        <button onClick={()=>handleDeleteRecord(r)} className="text-slate-300 hover:text-red-500 transition">
+                                                            <i className="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={4} className="p-4 text-sm text-slate-400">Belum ada catatan keuangan</td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
