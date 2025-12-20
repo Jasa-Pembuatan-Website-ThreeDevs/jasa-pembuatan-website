@@ -123,7 +123,7 @@ export default function About() {
                             <p className="text-base sm:text-lg leading-relaxed">
                                 Dengan pengalaman dalam berbagai proyek, kami memahami kebutuhan bisnis modern dan siap membantu Anda mencapai tujuan digital Anda. Mari bekerja sama untuk menciptakan website yang tidak hanya menarik secara visual, tetapi juga fungsional dan efektif dalam mendukung pertumbuhan bisnis Anda.
                             </p>
-
+                            
                             {/* Key Features */}
                             <div ref={featuresRef} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
                                 <div className="flex items-start space-x-3">
@@ -183,7 +183,81 @@ export default function About() {
                             </a>
                         </div>
                     </div>
+                    <div className="lg:w-1/2 flex justify-center lg:justify-end">
+
+                        <div ref={imageRef} className="relative w-full max-w-xl floating-element">
+
+
+                            <div className="bg-gradient-to-br from-indigo-100 to-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100">
+
+                                <div className="aspect-[4/5] relative">
+
+
+                                    {/* Image background (working image) - keep overlays above this image */}
+
+                                    <img
+
+                                        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80"
+
+                                        alt="People working in a cafï¿½"
+
+                                        className="absolute inset-0 w-full h-full object-cover"
+
+                                    />
+
+
+                                    {/* Optional subtle dark overlay so badges/text remain readable */}
+
+                                    <div className="absolute inset-0 bg-black/15" aria-hidden="true"></div>
+
+
+                                    <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+
+                                        <div className="text-2xl font-bold text-indigo-600">TD</div>
+
+                                    </div>
+
+
+                                    <div className="absolute bottom-6 right-6 bg-indigo-600 text-white rounded-xl p-4 shadow-lg">
+
+                                        <div className="font-bold">Best of Business Website</div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div className="absolute -top-6 -right-6 w-32 h-32 bg-amber-100 rounded-2xl -z-10"></div>
+
+                            <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-indigo-100 rounded-3xl -z-10"></div>
+
+
+                            <div className="absolute -left-10 bottom-1/4 bg-white rounded-xl p-5 shadow-xl border border-gray-100">
+
+                                <div className="flex items-center space-x-3">
+
+                                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+
+                                        <span className="text-2xl">?</span>
+
+                                    </div>
+
+                                    <div>
+
+                                        <div className="font-bold text-gray-900">4.9/5</div>
+
+                                        <div className="text-sm text-gray-600">Community Rating</div>
+
+                                    </div>
+
+                                </div>
+
+                        </div>
+                    </div>
                 </div>
+            </div>
             </div>
         </section>
     )

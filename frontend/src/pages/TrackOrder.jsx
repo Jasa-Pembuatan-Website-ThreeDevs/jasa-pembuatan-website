@@ -9,6 +9,7 @@ const TrackOrder = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // --- COMMAND: Fungsi Cek Status ke API ---
   const handleCheck = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -19,9 +20,53 @@ const TrackOrder = () => {
       const res = await axios.post('http://localhost:8000/api/track-order', form);
       setResult(res.data.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan sistem.');
+      setError(err.response?.data?.message || 'Order tidak ditemukan / Data salah.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // --- COMMAND: Fungsi Bayar DP (50%) ---
+  // Token DP biasanya sudah ada saat order pertama kali dibuat (tersimpan di database)
+  const handleBayarDP = () => {
+    if (window.snap && result.snap_token) {
+      window.snap.pay(result.snap_token, {
+        onSuccess: function (result) {
+          alert("DP Berhasil Dibayar! Tim kami akan segera mengerjakan.");
+          window.location.reload(); // Refresh halaman biar status update
+        },
+        onPending: function (result) { alert("Menunggu pembayaran DP..."); },
+        onError: function (result) { alert("Pembayaran DP Gagal!"); }
+      });
+    } else {
+      alert("Token pembayaran tidak ditemukan. Hubungi Admin.");
+    }
+  };
+
+  // --- COMMAND: Fungsi Bayar Pelunasan (Sisa Tagihan) ---
+  // Kita harus minta token BARU ke backend, karena ID transaksinya beda (LUNAS-...)
+  const handlePelunasan = async () => {
+    try {
+      // Panggil API khusus pelunasan yang tadi kita buat di OrderController
+      const res = await axios.post('http://localhost:8000/api/pay-remaining', { 
+        order_id: result.order_id 
+      });
+
+      const tokenPelunasan = res.data.token;
+
+      if (window.snap) {
+        window.snap.pay(tokenPelunasan, {
+          onSuccess: function (result) {
+            alert("Pelunasan Berhasil! Akses website akan dikirim ke Email.");
+            window.location.reload();
+          },
+          onPending: function (result) { alert("Menunggu pelunasan..."); },
+          onError: function (result) { alert("Pelunasan Gagal!"); }
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Gagal memproses pelunasan. Coba lagi nanti.");
     }
   };
 
@@ -44,7 +89,7 @@ const TrackOrder = () => {
                 <input 
                   type="text" 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="Contoh: TRX-12345"
+                  placeholder="Contoh: PRJ-17345" // Sesuaikan contoh ID Proyekmu
                   value={form.order_id}
                   onChange={(e) => setForm({...form, order_id: e.target.value})}
                   required
@@ -81,25 +126,86 @@ const TrackOrder = () => {
 
           {/* Result Card (Muncul kalau ada data) */}
           {result && (
-            <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-green-500 animate-fade-in-up">
+            <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-blue-500 animate-fade-in-up">
+              
+              {/* --- COMMAND: Header Status --- */}
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-bold text-gray-800">{result.paket}</h3>
-                  <p className="text-sm text-gray-500">Dipesan tanggal: {result.created_at}</p>
+                  <p className="text-sm text-gray-500">Tgl Order: {result.created_at}</p>
                 </div>
+                {/* Badge Status Dinamis */}
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  result.status_pembayaran === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                  result.status_pembayaran === 'lunas' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                 }`}>
-                  {result.status_pembayaran === 'paid' ? 'LUNAS' : 'PENDING'}
+                  {result.status_pembayaran === 'lunas' ? 'LUNAS' : result.status_pembayaran.toUpperCase().replace('_', ' ')}
                 </span>
               </div>
               
               <div className="space-y-4">
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                  <p className="text-sm font-medium text-blue-800">Halo, {result.nama}</p>
-                  <p className="text-sm text-blue-600 mt-1">
-                    Pesanan kamu sedang dalam proses. Silakan hubungi admin jika butuh update lebih lanjut.
-                  </p>
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm font-medium text-gray-800">Halo, {result.nama}</p>
+                  
+                  {/* --- COMMAND: LOGIKA TAMPILAN KONDISIONAL --- */}
+                  
+                  {/* KONDISI 1: Belum Bayar DP Sama Sekali */}
+                  {result.status_pembayaran === 'belum_bayar' && (
+                    <div className="mt-2">
+                      <p className="text-sm text-red-600 mb-3">
+                        Pesanan belum diproses. Silakan bayar DP sebesar 50% terlebih dahulu.
+                      </p>
+                      <button 
+                        onClick={handleBayarDP}
+                        className="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700"
+                      >
+                        Bayar DP Sekarang
+                      </button>
+                    </div>
+                  )}
+
+                  {/* KONDISI 2: Sudah DP, Tapi Website Masih Dikerjakan (Belum Selesai) */}
+                  {result.status_pembayaran === 'sudah_dp' && result.status_pengerjaan !== 'selesai' && (
+                    <div className="mt-2">
+                      <p className="text-sm text-blue-600">
+                        Pembayaran DP diterima. Tim kami sedang mengerjakan website Anda. Mohon ditunggu ya! ???
+                      </p>
+                      <div className="mt-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 inline-block rounded">
+                        Status Pengerjaan: {result.status_pengerjaan.toUpperCase()}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* KONDISI 3: Website Sudah Jadi (Siap Dilunasi) */}
+                  {result.status_pembayaran === 'sudah_dp' && result.status_pengerjaan === 'selesai' && (
+                    <div className="mt-2">
+                      <p className="text-sm text-green-600 font-bold mb-3">
+                        Hore! Website Anda sudah selesai dikerjakan ?
+                      </p>
+                      <p className="text-xs text-gray-500 mb-3">
+                        Silakan lunasi sisa tagihan untuk mendapatkan akses penuh ke website Anda.
+                      </p>
+                      <div className="bg-gray-100 p-2 rounded mb-3 flex justify-between">
+                         <span>Sisa Tagihan:</span>
+                         <span className="font-bold">Rp {parseInt(result.sisa_tagihan).toLocaleString('id-ID')}</span>
+                      </div>
+                      <button 
+                        onClick={handlePelunasan}
+                        className="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700"
+                      >
+                        Lunasi Sekarang
+                      </button>
+                    </div>
+                  )}
+
+                  {/* KONDISI 4: Sudah Lunas (Serah Terima) */}
+                  {result.status_pembayaran === 'lunas' && (
+                    <div className="mt-2">
+                      <p className="text-sm text-green-700">
+                        Terima kasih! Pembayaran lunas. Data akses website telah dikirim ke Email/WhatsApp Anda.
+                      </p>
+                    </div>
+                  )}
+
                 </div>
               </div>
             </div>

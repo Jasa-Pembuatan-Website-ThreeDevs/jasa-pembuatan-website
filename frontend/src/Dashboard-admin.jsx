@@ -103,7 +103,7 @@ const AdminDashboard = () => {
                     id: e.id,
                     type: 'Expenses',
                     description: e.judul || e.keterangan || '-',
-                    nominal: e.jumlah || 0,
+                    nominal: e.total || e.jumlah || 0,
                     tanggal: e.tanggal_pengeluaran || e.created_at || null,
                     raw: e,
                 }));
@@ -606,7 +606,7 @@ const AdminDashboard = () => {
                                         Total Expenses
                                     </p>
                                     <p className="text-2xl font-bold text-slate-800">
-                                        {expenseSummary ? `Rp ${Number(expenseSummary.total_expenses || 0).toLocaleString('id-ID')}` : 'Rp 0'}
+                                        {expenseSummary ? `Rp ${Number(expenseSummary.total_expense || 0).toLocaleString('id-ID')}` : 'Rp 0'}
                                     </p>
                                 </div>
                             </div>
