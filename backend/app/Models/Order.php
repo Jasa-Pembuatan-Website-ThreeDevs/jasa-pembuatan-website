@@ -15,7 +15,9 @@ class Order extends Model
         'no_hp',
         'paket_layanan',
         'total_harga',
-        'status',
+        'status_pengerjaan',
+        'status_pembayaran',
+        'sisa_tagihan',
         'snap_token',
     ];
 }
