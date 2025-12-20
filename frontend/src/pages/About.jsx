@@ -240,7 +240,7 @@ export default function About() {
 
                                     <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
 
-                                        <span className="text-2xl">?</span>
+                                        <span className="text-2xl">🌟</span>
 
                                     </div>
 
