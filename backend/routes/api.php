@@ -1,98 +1,103 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\PaymentCallbackController;
 
-// routes/api.php
+/*
+|--------------------------------------------------------------------------
+| ROUTE PUBLIK (Bisa diakses tanpa Login)
+|--------------------------------------------------------------------------
+| Jalur ini terbuka untuk Customer dan Halaman Website Depan.
+*/
+
 Route::get('/status', function () {
     return response()->json(['status' => 'ok']);
 });
 
-// Test Midtrans configuration
+// 1. ORDER CUSTOMER (Dari Website)
+// Otomatis status 'belum_bayar' & 'pending'.
+Route::post('/orders', [OrderController::class, 'store']);
+
+// 2. TRACKING ORDER
+Route::post('/track-order', [OrderController::class, 'checkStatus']);
+
+// 3. PELUNASAN (Midtrans)
+Route::post('/pay-remaining', [OrderController::class, 'payRemaining']);
+
+// 4. LOGIN ADMIN
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
+
+// 5. TEST MIDTRANS (Opsional, boleh dihapus nanti)
 Route::get('/test-midtrans', function () {
-    try {
-        \Midtrans\Config::$serverKey = config('midtrans.server_key');
-        \Midtrans\Config::$isProduction = config('midtrans.is_production');
-        \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized');
-        \Midtrans\Config::$is3ds = config('midtrans.is_3ds');
+    // ... logic test midtrans kamu ...
+    return response()->json(['message' => 'Midtrans Configured']);
+});
+
+Route::post('/midtrans-callback', [PaymentCallbackController::class, 'receive']);
+
+Route::post('/orders/cancel', [OrderController::class, 'cancelOrder']);
+
+/*
+|--------------------------------------------------------------------------
+| ROUTE PRIVATE ADMIN (Harus Login & Punya Token)
+|--------------------------------------------------------------------------
+| Jalur ini dikunci. Cuma Admin yang bawa token 'Bearer' yang bisa masuk.
+*/
+Route::middleware('auth:sanctum')->group(function () {
+
+    // LOGOUT
+    Route::post('/logout', [AdminAuthController::class, 'logout']);
+
+    // GROUP ADMIN DASHBOARD
+    Route::prefix('admin')->group(function () {
         
-        // Try to get snap token with minimal data
-        $params = [
-            'transaction_details' => [
-                'order_id' => 'TEST-' . time(),
-                'gross_amount' => 1000,
-            ],
-            'customer_details' => [
-                'first_name' => 'Test',
-                'email' => 'test@example.com',
-                'phone' => '08123456789',
-            ],
-        ];
+        // --- MANAJEMEN ORDER (PEMASUKAN) ---
+        // Lihat semua order
+        Route::get('/orders', [OrderController::class, 'index']);
         
-        $snapToken = \Midtrans\Snap::getSnapToken($params);
-        return response()->json(['status' => 'success', 'token' => $snapToken]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
+        // Detail satu order
+        Route::get('/orders/{id}', [OrderController::class, 'show']);
+        
+        // Update order (misal ganti status pengerjaan)
+        Route::put('/orders/{id}', [OrderController::class, 'update']);
+        
+        // Hapus order
+        Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+
+        // [BARU] INPUT ORDER MANUAL (CASH/TRANSFER)
+        // Ini jalur khusus Admin (Function: storeManual)
+        Route::post('/orders/manual', [OrderController::class, 'storeManual']);
+
+
+        // --- MANAJEMEN PENGELUARAN (EXPENSES) ---
+        Route::get('/expenses', [PengeluaranController::class, 'index']);
+        Route::post('/expenses', [PengeluaranController::class, 'store']);
+        Route::get('/expenses/{id}', [PengeluaranController::class, 'show']);
+        Route::put('/expenses/{id}', [PengeluaranController::class, 'update']);
+        Route::delete('/expenses/{id}', [PengeluaranController::class, 'destroy']);
+        Route::get('/expense-summary', [PengeluaranController::class, 'expenseSummary']);
+
+
+        // --- DASHBOARD & ANALYTICS ---
+        // Ringkasan Pemasukan (Total Uang)
+        Route::get('/income-summary', [OrderController::class, 'incomeSummary']); // Pastikan pakai OrderController
+        
+        // Grafik Dashboard Utama
+        Route::get('/dashboard-chart', [DashboardController::class, 'getChartData']);
+
+        // Analytics Tambahan (Kalau controller-nya ada)
+        Route::get('/analytics/sales', [AnalyticsController::class, 'salesTrend']);
+        Route::get('/analytics/top-categories', [AnalyticsController::class, 'topCategories']);
+        Route::get('/analytics/expenses', [AnalyticsController::class, 'expenseTrend']);
+        Route::get('/analytics/income-vs-expense', [AnalyticsController::class, 'incomeVsExpense']);
+    });
+
 });
-
-// Get all orders (for testing)
-Route::get('/orders', function () {
-    return response()->json(\App\Models\Order::all());
-});
-
-Route::post('/payment', [PaymentController::class, 'createTransaction']);
-
-// Public admin login (returns sanctum token)
-Route::post('/admin/login', [\App\Http\Controllers\AdminAuthController::class, 'login']);
-
-// NOTE: temporarily using only 'auth:sanctum' here to avoid errors when
-// Spatie permission tables are not migrated. Run the Spatie migrations and
-// restore 'role:admin' middleware when ready.
-Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
-    // List semua order (Pemasukan)
-    Route::get('/orders', [OrderController::class, 'index']);
-    
-    // Input order manual (Pemasukan Cash)
-    Route::post('/orders', [OrderController::class, 'store']);
-    
-    // Detail 1 order
-    Route::get('/orders/{id}', [OrderController::class, 'show']);
-    
-    // Update order (Ganti status jadi lunas manual)
-    Route::put('/orders/{id}', [OrderController::class, 'update']);
-    // Hapus order
-    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-    
-    // API Khusus Widget Dashboard (Total Duit)
-    Route::get('/income-summary', [OrderController::class, 'incomeSummary']);
-
-    Route::get('/expenses', [PengeluaranController::class, 'index']);
-    Route::post('/expenses', [PengeluaranController::class, 'store']);
-    
-    // Detail, Update, Delete
-    Route::get('/expenses/{id}', [PengeluaranController::class, 'show']);
-    Route::put('/expenses/{id}', [PengeluaranController::class, 'update']);
-    Route::delete('/expenses/{id}', [PengeluaranController::class, 'destroy']);
-
-    // API Summary Pengeluaran
-    Route::get('/expense-summary', [PengeluaranController::class, 'expenseSummary']);
-
-    // Income endpoints (wrapper around orders)
-    Route::get('/income', [\App\Http\Controllers\IncomeController::class, 'index']);
-    Route::get('/income/summary', [\App\Http\Controllers\IncomeController::class, 'summary']);
-
-    // Analytics endpoints for frontend charts
-    Route::get('/analytics/sales', [\App\Http\Controllers\AnalyticsController::class, 'salesTrend']);
-    Route::get('/analytics/top-categories', [\App\Http\Controllers\AnalyticsController::class, 'topCategories']);
-    Route::get('/analytics/expenses', [\App\Http\Controllers\AnalyticsController::class, 'expenseTrend']);
-    Route::get('/analytics/income-vs-expense', [\App\Http\Controllers\AnalyticsController::class, 'incomeVsExpense']);
-
-    // Admin auth actions
-    Route::post('/logout', [\App\Http\Controllers\AdminAuthController::class, 'logout']);
-});
-
-// Maksimal 60 request per menit per IP
-Route::middleware('throttle:60,1')->post('/track-order', [OrderController::class, 'checkStatus']);
