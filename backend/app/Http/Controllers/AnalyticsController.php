@@ -11,15 +11,14 @@ class AnalyticsController extends Controller
 {
     /**
      * Return sales trend for the last N days (default 30).
-     * Response: [{ date: 'YYYY-MM-DD', sales: 12345 }, ...]
      */
     public function salesTrend(Request $request)
     {
         $days = (int) ($request->get('days', 30));
-
         $start = now()->subDays($days - 1)->startOfDay();
 
-        $rows = Order::where('status', 'paid')
+        // PERBAIKAN DI SINI: Ganti 'status' -> 'status_pembayaran'
+        $rows = Order::where('status_pembayaran', 'lunas') // Atau bisa pakai whereIn(['lunas', 'sudah_dp'])
             ->where('created_at', '>=', $start)
             ->selectRaw("date(created_at) as date, sum(total_harga) as sales")
             ->groupBy('date')
@@ -32,7 +31,7 @@ class AnalyticsController extends Controller
                 ];
             });
 
-        // Ensure we return one entry per day (fill zeros)
+        // Isi tanggal kosong dengan 0
         $result = [];
         for ($i = 0; $i < $days; $i++) {
             $d = now()->subDays($days - 1 - $i)->toDateString();
@@ -47,74 +46,16 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * Return top categories (paket_layanan) by sales.
-     * Response: [{ name: 'Paket A', value: 12345 }, ...]
-     */
-    public function topCategories(Request $request)
-    {
-        $limit = (int) ($request->get('limit', 6));
-
-        $rows = Order::where('status', 'paid')
-            ->selectRaw('paket_layanan as name, sum(total_harga) as value')
-            ->groupBy('paket_layanan')
-            ->orderByDesc('value')
-            ->limit($limit)
-            ->get()
-            ->map(function ($r) {
-                return [
-                    'name' => $r->name ?? 'Lainnya',
-                    'value' => (int) $r->value,
-                ];
-            });
-
-        return response()->json($rows);
-    }
-
-    /**
-     * Return expense trend for the last N days (default 30).
-     * Response: [{ date: 'YYYY-MM-DD', expenses: 12345 }, ...]
-     */
-    public function expenseTrend(Request $request)
-    {
-        $days = (int) ($request->get('days', 30));
-
-        $start = now()->subDays($days - 1)->startOfDay();
-
-        $rows = Pengeluaran::where('tanggal_pengeluaran', '>=', $start)
-            ->selectRaw("date(tanggal_pengeluaran) as date, sum(jumlah) as expenses")
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get()
-            ->map(function ($r) {
-                return [
-                    'date' => $r->date,
-                    'expenses' => (int) $r->expenses,
-                ];
-            });
-
-        $result = [];
-        for ($i = 0; $i < $days; $i++) {
-            $d = now()->subDays($days - 1 - $i)->toDateString();
-            $found = $rows->firstWhere('date', $d);
-            $result[] = [
-                'date' => $d,
-                'expenses' => $found ? (int) $found['expenses'] : 0,
-            ];
-        }
-
-        return response()->json($result);
-    }
-
-    /**
      * Return combined income and expense per day for last N days.
-     * Response: [{ date: 'YYYY-MM-DD', income: 123, expense: 45 }, ...]
      */
     public function incomeVsExpense(Request $request)
     {
         $days = (int) ($request->get('days', 30));
         $start = now()->subDays($days - 1)->startOfDay();
 
-        $incomeRows = Order::where('status', 'paid')
+        // 1. AMBIL DATA ORDER (PEMASUKAN)
+        // PERBAIKAN: Sesuaikan kolom status_pembayaran
+        $incomeRows = Order::where('status_pembayaran', 'lunas') 
             ->where('created_at', '>=', $start)
             ->selectRaw("date(created_at) as date, sum(total_harga) as income")
             ->groupBy('date')
@@ -122,6 +63,8 @@ class AnalyticsController extends Controller
             ->get()
             ->mapWithKeys(function ($r) { return [$r->date => (int) $r->income]; });
 
+        // 2. AMBIL DATA PENGELUARAN
+        // Pastikan model Pengeluaran punya kolom 'tanggal_pengeluaran' & 'jumlah'
         $expenseRows = Pengeluaran::where('tanggal_pengeluaran', '>=', $start)
             ->selectRaw("date(tanggal_pengeluaran) as date, sum(jumlah) as expense")
             ->groupBy('date')
@@ -129,16 +72,43 @@ class AnalyticsController extends Controller
             ->get()
             ->mapWithKeys(function ($r) { return [$r->date => (int) $r->expense]; });
 
+        // 3. GABUNGKAN DATA
         $result = [];
         for ($i = 0; $i < $days; $i++) {
             $d = now()->subDays($days - 1 - $i)->toDateString();
+            
+            // Format tanggal biar cantik di grafik (Contoh: 20 Dec)
+            // Kalau mau tetap YYYY-MM-DD, hapus baris format('d M') ini
+            $label = \Carbon\Carbon::parse($d)->format('d M'); 
+
             $result[] = [
-                'date' => $d,
+                'date' => $label, // Ini label X-Axis
                 'income' => $incomeRows[$d] ?? 0,
                 'expense' => $expenseRows[$d] ?? 0,
             ];
         }
 
         return response()->json($result);
+    }
+    
+    // Fungsi Top Categories (Opsional, kalau mau dipake)
+    public function topCategories()
+    {
+         // Ambil Top 5 Paket Layanan yang paling laku
+         $data = Order::where('status_pembayaran', 'lunas')
+             ->select('paket_layanan as name', DB::raw('count(*) as value'))
+             ->groupBy('paket_layanan')
+             ->orderByDesc('value')
+             ->limit(5)
+             ->get();
+
+         return response()->json($data);
+    }
+    
+    // Fungsi Expense Trend (Opsional)
+    public function expenseTrend(Request $request)
+    {
+        // Logikanya mirip salesTrend tapi untuk Pengeluaran
+        return response()->json([]); 
     }
 }

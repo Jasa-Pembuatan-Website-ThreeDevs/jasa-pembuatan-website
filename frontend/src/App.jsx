@@ -20,6 +20,7 @@ import ProjectDetail from './pages/ProjectDetail'
 import TrackOrder from './pages/TrackOrder'
 import Admin from './Dashboard-admin'
 import LoginAdmin from './pages/LoginAdmin'
+import OrderSuccess from './pages/OrderSuccess'
 
 function App() {
  const [isMaintenance, setIsMaintenance] = useState(false);
@@ -84,6 +85,7 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path='/project-detail' element={<ProjectDetail />} />
         <Route path='/track' element={<TrackOrder />} />
+        <Route path='/order-success' element={<OrderSuccess />} />
         <Route path="/" element={
           <>
             <Navbar />
