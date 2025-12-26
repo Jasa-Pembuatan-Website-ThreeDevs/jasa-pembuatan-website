@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import axios from 'axios';
+import { showSuccess, showWarning, showError, showInfo } from '../utils/swal';
 
 const TrackOrder = () => {
   const [form, setForm] = useState({ order_id: '', no_hp: '' });
@@ -32,14 +33,14 @@ const TrackOrder = () => {
     if (window.snap && result.snap_token) {
       window.snap.pay(result.snap_token, {
         onSuccess: function (result) {
-          alert("DP Berhasil Dibayar! Tim kami akan segera mengerjakan.");
+          showSuccess("DP Berhasil Dibayar! Tim kami akan segera mengerjakan.");
           window.location.reload(); // Refresh halaman biar status update
         },
-        onPending: function (result) { alert("Menunggu pembayaran DP..."); },
-        onError: function (result) { alert("Pembayaran DP Gagal!"); }
+        onPending: function (result) { showInfo("Menunggu pembayaran DP..."); },
+        onError: function (result) { showError("Pembayaran DP Gagal!"); }
       });
     } else {
-      alert("Token pembayaran tidak ditemukan. Hubungi Admin.");
+      showWarning("Token pembayaran tidak ditemukan. Hubungi Admin.");
     }
   };
 
@@ -57,16 +58,16 @@ const TrackOrder = () => {
       if (window.snap) {
         window.snap.pay(tokenPelunasan, {
           onSuccess: function (result) {
-            alert("Pelunasan Berhasil! Akses website akan dikirim ke Email.");
+            showSuccess("Pelunasan Berhasil! Akses website akan dikirim ke Email.");
             window.location.reload();
           },
-          onPending: function (result) { alert("Menunggu pelunasan..."); },
-          onError: function (result) { alert("Pelunasan Gagal!"); }
+          onPending: function (result) { showInfo("Menunggu pelunasan..."); },
+          onError: function (result) { showError("Pelunasan Gagal!"); }
         });
       }
     } catch (err) {
       console.error(err);
-      alert("Gagal memproses pelunasan. Coba lagi nanti.");
+      showError("Gagal memproses pelunasan. Coba lagi nanti.");
     }
   };
 

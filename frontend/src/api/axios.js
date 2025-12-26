@@ -1,4 +1,5 @@
 import axios from "axios";
+import { showWarning } from "../utils/swal";
 
 // Buat instance khusus (bukan global)
 const api = axios.create({
@@ -12,7 +13,7 @@ api.interceptors.response.use(
     error => {
         if (error.response && error.response.status === 503) {
             // Logic maintenance sama seperti di atas...
-            alert("Sistem sedang maintenance!"); 
+            showWarning("Sistem sedang maintenance!"); 
             // Atau redirect ke halaman khusus maintenance di React Router
             // window.location.href = '/maintenance';
         }

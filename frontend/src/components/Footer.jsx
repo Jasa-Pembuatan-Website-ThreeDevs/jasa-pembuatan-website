@@ -170,22 +170,19 @@ export default function Footer() {
                                 <span className="text-xl sm:text-2xl font-bold text-gray-900">ThreeDevs</span>
                             </div>
                             <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                                Your perfect space between work and home. Creating meaningful experiences since 2020.
+                                Kami Menyediakan Layanan Pengembangan Website Profesional untuk Meningkatkan Bisnis Anda.
                             </p>
 
                             {/* Social Media (Tidak diubah karena sudah ringkas) */}
                             <div className="flex items-center gap-4 pt-4">
-                                <a href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 transition-all duration-300" aria-label="Twitter">
-                                    <i className="fab fa-twitter text-lg"></i>
-                                </a>
                                 <a href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 transition-all duration-300" aria-label="Instagram">
                                     <i className="fab fa-instagram text-lg"></i>
                                 </a>
                                 <a href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 transition-all duration-300" aria-label="LinkedIn">
                                     <i className="fab fa-linkedin-in text-lg"></i>
                                 </a>
-                                <a href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 transition-all duration-300" aria-label="Facebook">
-                                    <i className="fab fa-facebook-f text-lg"></i>
+                                <a href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 transition-all duration-300" aria-label="Tiktok">
+                                    <i className="fab fa-tiktok text-lg"></i>
                                 </a>
                             </div>
                         </div>

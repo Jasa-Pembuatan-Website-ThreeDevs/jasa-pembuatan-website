@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import AnalistikChart from "./components/AnalistikChart";
 import axios from "./api/axios"; // Pastikan path ini benar
 import { useNavigate } from 'react-router-dom';
+import { showSuccess, showError, showConfirm } from './utils/swal';
 
 const AdminDashboard = () => {
     // --- STATE UI (JANGAN DIUBAH) ---
@@ -137,18 +138,19 @@ const AdminDashboard = () => {
             // Reset Form & Refresh Data
             setNominal('');
             setKeterangan('');
-            alert("Data berhasil disimpan!");
+            showSuccess("Data berhasil disimpan!");
             fetchData(token);
 
         } catch (error) {
             console.error("Gagal simpan:", error);
-            alert("Gagal menyimpan data. Cek inputan.");
+            showError("Gagal menyimpan data. Cek inputan.");
         }
     };
 
     // --- 3. HANDLER: HAPUS DATA (DELETE) ---
     const handleDeleteRecord = async (record) => {
-        if(!window.confirm(`Yakin hapus data: ${record.title}?`)) return;
+        const result = await showConfirm(`Yakin hapus data: ${record.title}?`);
+        if(!result.isConfirmed) return;
 
         const token = localStorage.getItem('admin_token');
         const headers = { Authorization: `Bearer ${token}` };
@@ -162,7 +164,7 @@ const AdminDashboard = () => {
             fetchData(token); // Refresh
         } catch (error) {
             console.error("Gagal hapus:", error);
-            alert("Gagal menghapus data.");
+            showError("Gagal menghapus data.");
         }
     };
 

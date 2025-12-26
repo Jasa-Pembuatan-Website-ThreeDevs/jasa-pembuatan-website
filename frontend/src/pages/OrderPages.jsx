@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "../api/axios"; // Pastikan path axios benar
 import { useNavigate } from "react-router-dom";
+import { showInfo, showError, showWarning } from "../utils/swal";
 
 const OrderPages = () => {
   const navigate = useNavigate();
@@ -71,10 +72,10 @@ const OrderPages = () => {
             navigate('/order-success', { state: { order: orderData } });
           },
           onPending: function (result) {
-            alert("Menunggu Pembayaran...");
+            showInfo("Menunggu Pembayaran...");
           },
           onError: function (result) {
-            alert("Pembayaran Gagal!");
+            showError("Pembayaran Gagal!");
           },
           // --- BAGIAN INI YANG PENTING BRO ---
           onClose: async function () {
@@ -84,7 +85,7 @@ const OrderPages = () => {
                 order_id: orderData.order_id
               });
               
-              alert("Pembayaran dibatalkan. Data order telah dihapus.");
+              showWarning("Pembayaran dibatalkan. Data order telah dihapus.");
             } catch (error) {
               console.error("Gagal membatalkan order:", error);
             }
@@ -95,7 +96,7 @@ const OrderPages = () => {
 
     } catch (error) {
       console.error("Error saat membuat order:", error);
-      alert("Terjadi kesalahan saat memproses order. Silakan coba lagi.");
+      showError("Terjadi kesalahan saat memproses order. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }

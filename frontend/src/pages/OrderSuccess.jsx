@@ -2,11 +2,24 @@ import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { showSuccess } from '../utils/swal';
 
 const OrderSuccess = () => {
   const location = useLocation();
   // Ambil data yang dikirim dari navigate() tadi
-  const { order } = location.state || {}; 
+  const { order } = location.state || {};
+
+  // WhatsApp API function
+  const sendWhatsAppConfirmation = () => {
+    const phoneNumber = '62895368757054'; // Nomor admin tanpa +
+    const message = `Halo, saya ingin mengkonfirmasi pembayaran saya. \n\nDetail Pesanan:\n- Order ID: ${order.order_id}\n- Nama Pelanggan: ${order.nama_pelanggan}\n- Paket: ${order.paket_layanan}\n- Total: Rp ${parseInt(order.total_harga).toLocaleString('id-ID')}\n\nTerima kasih.`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+    showSuccess('WhatsApp Anda akan terbuka untuk mengirim konfirmasi pembayaran');
+  }; 
 
   if (!order) {
     return <div className="text-center py-20">Data order tidak ditemukan.</div>;
@@ -34,6 +47,13 @@ const OrderSuccess = () => {
           </div>
 
           <div className="space-y-3">
+            <button 
+              onClick={sendWhatsAppConfirmation}
+              className="w-full bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition flex items-center justify-center gap-2"
+            >
+              <i className="fa-brands fa-whatsapp text-lg"></i>
+              Konfirmasi ke WhatsApp
+            </button>
             <Link to="/track" className="block w-full bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-gray-800">
               Lacak Pesanan Saya
             </Link>

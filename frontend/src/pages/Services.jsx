@@ -27,7 +27,7 @@ const packages = [
     price: "Rp 699",
     desc: "Solusi lengkap untuk bisnis menengah dengan fitur advanced dan performa optimal.",
     features: [
-      "Semua fitur Paket Lite",
+      "Semua fitur Paket Tiny",
       "15 Halaman Website",
       "Hosting 5GB SSD",
       "Email Profesional",
