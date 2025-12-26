@@ -10,6 +10,7 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PaymentCallbackController;
+use App\Models\Order;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,3 +102,14 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
 });
+
+Route::get('/invoice/{order_id}', function ($order_id) {
+    $order = Order::where('order_id', $order_id)->first();
+    
+    if (!$order) {
+        return response()->json(['message' => 'Order not found'], 404);
+    }
+    
+    return response()->json(['data' => $order]);
+});
+

@@ -21,6 +21,7 @@ import TrackOrder from './pages/TrackOrder'
 import Admin from './Dashboard-admin'
 import LoginAdmin from './pages/LoginAdmin'
 import OrderSuccess from './pages/OrderSuccess'
+import Invoice from './pages/Invoice'
 
 function App() {
  const [isMaintenance, setIsMaintenance] = useState(false);
@@ -86,6 +87,7 @@ function App() {
         <Route path='/project-detail' element={<ProjectDetail />} />
         <Route path='/track' element={<TrackOrder />} />
         <Route path='/order-success' element={<OrderSuccess />} />
+        <Route path="/invoice/:orderId" element={<Invoice />} />
         <Route path="/" element={
           <>
             <Navbar />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { showError } from '../utils/swal';
 
 const LoginAdmin = () => {
     const [email, setEmail] = useState('');
@@ -30,7 +31,7 @@ const LoginAdmin = () => {
             }
         } catch (err) {
             console.error('Login failed', err);
-            alert(err.response?.data?.message || 'Login gagal. Periksa kredensial.');
+            showError(err.response?.data?.message || 'Login gagal. Periksa kredensial.');
         }
     };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { showSuccess, showWarning, showError, showInfo } from '../utils/swal';
 
 const PaymentButton = () => {
   
@@ -19,17 +20,17 @@ const PaymentButton = () => {
       if (window.snap) {
         window.snap.pay(snapToken, {
           onSuccess: function(result){
-            alert("Pembayaran Berhasil!");
+            showSuccess("Pembayaran Berhasil!");
             console.log(result);
           },
           onPending: function(result){
-            alert("Menunggu Pembayaran..."); console.log(result);
+            showInfo("Menunggu Pembayaran..."); console.log(result);
           },
           onError: function(result){
-            alert("Pembayaran Gagal!"); console.log(result);
+            showError("Pembayaran Gagal!"); console.log(result);
           },
           onClose: function(){
-            alert('Anda menutup popup tanpa menyelesaikan pembayaran');
+            showWarning('Anda menutup popup tanpa menyelesaikan pembayaran');
           }
         });
       }
