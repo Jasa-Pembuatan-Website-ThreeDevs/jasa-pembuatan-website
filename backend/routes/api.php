@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
@@ -8,9 +9,10 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\PaymentCallbackController;
-use App\Models\Order;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +48,10 @@ Route::post('/midtrans-callback', [PaymentCallbackController::class, 'receive'])
 
 Route::post('/orders/cancel', [OrderController::class, 'cancelOrder']);
 
+Route::get('/portfolios', [PortfolioController::class, 'index']);
+Route::get('/portfolios/{id}', [PortfolioController::class, 'show']); // <--- TAMBAH INI
+
+// Route Khusus Admin (Taruh di dalam middleware auth:sanctum)
 /*
 |--------------------------------------------------------------------------
 | ROUTE PRIVATE ADMIN (Harus Login & Punya Token)
@@ -60,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // GROUP ADMIN DASHBOARD
     Route::prefix('admin')->group(function () {
         
+        Route::post('/orders/{id}/handover', [OrderController::class, 'uploadHandover']);
         // --- MANAJEMEN ORDER (PEMASUKAN) ---
         // Lihat semua order
         Route::get('/orders', [OrderController::class, 'index']);
@@ -99,9 +106,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/analytics/top-categories', [AnalyticsController::class, 'topCategories']);
         Route::get('/analytics/expenses', [AnalyticsController::class, 'expenseTrend']);
         Route::get('/analytics/income-vs-expense', [AnalyticsController::class, 'incomeVsExpense']);
+        // --- MANAJEMEN PORTFOLIO ---
+         Route::post('/portfolios', [PortfolioController::class, 'store']);
+    Route::delete('/portfolios/{id}', [PortfolioController::class, 'destroy']);
     });
 
 });
+
 
 Route::get('/invoice/{order_id}', function ($order_id) {
     $order = Order::where('order_id', $order_id)->first();
@@ -113,3 +124,6 @@ Route::get('/invoice/{order_id}', function ($order_id) {
     return response()->json(['data' => $order]);
 });
 
+Route::post('/payment', [PaymentController::class, 'createTransaction']);
+Route::get('/testimonials', [TestimonialController::class, 'index']); // Buat di Home
+Route::post('/testimonials', [TestimonialController::class, 'store']); // Buat User kirim

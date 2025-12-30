@@ -10,7 +10,7 @@ export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     useSmoothScroll();
-    
+
     const containerRef = useRef(null);
     const logoRef = useRef(null);
     const navRef = useRef(null);
@@ -91,7 +91,9 @@ export default function Navbar() {
                         { icon: "fa-circle-info", text: "About", link: "#about" },
                         { icon: "fa-dollar", text: "Services", link: "#services" },
                         { icon: "fa-briefcase", text: "Portfolio", link: "#portfolio" },
-                        { icon: "fa-envelope", text: "Contact", link: "#contact" }
+                        { icon: "fa-comment", text: "Testimonials", link: "#testimonials" },
+                        { icon: "fa-envelope", text: "Contact", link: "#contact" },
+                        
                     ].map((item, index) => (
                         <a
                             key={index}

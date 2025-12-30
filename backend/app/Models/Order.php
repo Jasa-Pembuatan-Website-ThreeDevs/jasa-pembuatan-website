@@ -19,5 +19,6 @@ class Order extends Model
         'status_pembayaran',
         'sisa_tagihan',
         'snap_token',
+        'progress',
     ];
 }

@@ -15,7 +15,7 @@ const OrderPages = () => {
       name: "Paket Tiny", 
       price: 299000,        // HARGA YANG DIBAYAR (REAL)
       originalPrice: 800000, // HARGA CORET (PURA-PURA MAHAL)
-      features: ["Landing Page", "3 Revisi", "Pengerjaan 3 Hari"] 
+      features: ["Landing Page", "2 Revisi", "Pengerjaan 5 Hari"] 
     },
     { 
       id: "medium", 
@@ -38,6 +38,7 @@ const OrderPages = () => {
     nama: "",
     email: "",
     no_hp: "",
+    confirmEmail: "",
     catatan: "",
   });
   const [loading, setLoading] = useState(false);
@@ -50,57 +51,69 @@ const OrderPages = () => {
   // Submit Order
   const handleOrder = async (e) => {
     e.preventDefault();
+
+    // --- 1. VALIDASI DI AWAL (PENTING!) ---
+    // Cek dulu sebelum loading atau request ke backend
+    if (formData.email !== formData.confirmEmail) {
+       showError("Email dan Konfirmasi Email tidak sama!");
+       return; // Stop di sini, jangan lanjut
+    }
+    // -------------------------------------
+
     setLoading(true);
 
     try {
-      // Backend cuma peduli harga final (price), bukan harga coret (originalPrice)
-      const response = await axios.post("/api/orders", {
-        nama_pelanggan: formData.nama,
+      // Request Token ke Backend
+      const response = await axios.post("/api/payment", { 
+        nama: formData.nama,
         email: formData.email,
         no_hp: formData.no_hp,
-        paket_layanan: selectedPaket.name,
-        total_harga: selectedPaket.price, // Kirim harga diskon (299rb)
-        status_pembayaran: "lunas", // Anggap langsung lunas
+        paket: selectedPaket.name, 
+        harga: selectedPaket.price 
       });
 
       const snapToken = response.data.token;
-      const orderData = response.data.data;
-
+      
+      // Tampilkan Popup Midtrans
       if (window.snap) {
         window.snap.pay(snapToken, {
+          // === PERBAIKAN DI SINI ===
           onSuccess: function (result) {
-            navigate('/order-success', { state: { order: orderData } });
+            // Gabungkan data dari Midtrans + Data Form Inputan User
+            const combinedData = {
+                ...result,                       // Ambil Order ID & Status dari Midtrans
+                nama_pelanggan: formData.nama,   // Ambil Nama dari Input Form
+                paket: selectedPaket.name,       // Ambil Paket yang dipilih
+                total_harga: selectedPaket.price // Ambil Harga yang dipilih
+            };
+            
+            // Kirim paket data lengkap ini ke halaman success
+            navigate('/order-success', { state: { order: combinedData } });
           },
+          // =========================
+          
           onPending: function (result) {
             showInfo("Menunggu Pembayaran...");
           },
           onError: function (result) {
             showError("Pembayaran Gagal!");
           },
-          // --- BAGIAN INI YANG PENTING BRO ---
           onClose: async function () {
-            try {
-              // Hapus order dari database karena user close popup
-              await axios.post("http://localhost:8000/api/orders/cancel", {
-                order_id: orderData.order_id
-              });
-              
-              showWarning("Pembayaran dibatalkan. Data order telah dihapus.");
-            } catch (error) {
-              console.error("Gagal membatalkan order:", error);
-            }
+            showWarning("Pembayaran belum diselesaikan.");
           }
-          // -----------------------------------
         });
       }
 
     } catch (error) {
       console.error("Error saat membuat order:", error);
-      showError("Terjadi kesalahan saat memproses order. Silakan coba lagi.");
+      // Tampilkan error dari backend jika ada
+      const errMsg = error.response?.data?.message || "Terjadi kesalahan saat memproses order.";
+      showError(errMsg);
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <>
       <Navbar />
@@ -139,6 +152,19 @@ const OrderPages = () => {
                       />
                     </div>
                     <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Email</label>
+                      <input
+                        type="email"
+                        required
+                        onPaste={(e) => e.preventDefault()} // Biar gak bisa copas (maksa ketik ulang)
+                        className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        value={formData.confirmEmail}
+                        onChange={(e) => setFormData({...formData, confirmEmail: e.target.value})}
+                        placeholder="Ketik ulang email..."
+                      />
+                    </div>
+                  </div>
+                   <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">No WhatsApp</label>
                       <input
                         type="tel"
@@ -149,7 +175,6 @@ const OrderPages = () => {
                         placeholder="Masukkan No WhatsApp"
                       />
                     </div>
-                  </div>
 
                   <div className="pt-6">
                     <h2 className="text-xl font-bold mb-4 text-gray-700">2. Pilih Paket Promo</h2>
@@ -170,16 +195,13 @@ const OrderPages = () => {
                             </div>
                             <div>
                                 <span className="font-bold text-gray-800 block">{pkg.name}</span>
-                                {/* Badge Hemat Kecil */}
                                 <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">
                                   Hemat {hitungHemat(pkg.originalPrice, pkg.price)}%
                                 </span>
                             </div>
                           </div>
                           <div className="text-right">
-                             {/* Harga Coret Kecil */}
                              <span className="block text-xs text-gray-400 line-through">Rp {pkg.originalPrice.toLocaleString('id-ID')}</span>
-                             {/* Harga Asli Besar */}
                              <span className="block font-bold text-blue-700">Rp {pkg.price.toLocaleString('id-ID')}</span>
                           </div>
                         </div>
@@ -194,7 +216,6 @@ const OrderPages = () => {
             <div className="lg:col-span-1">
               <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 sticky top-24">
                 
-                {/* Header Diskon */}
                 <div className="bg-red-50 border border-red-100 p-3 rounded-lg mb-4 text-center">
                     <p className="text-red-600 font-bold text-sm">🔥 Penawaran Terbatas!</p>
                     <p className="text-xs text-red-500">Harga akan naik kembali besok.</p>
@@ -202,13 +223,11 @@ const OrderPages = () => {
 
                 <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">Ringkasan Pesanan</h3>
                 
-                {/* Nama Paket */}
                 <div className="mb-4">
                   <span className="text-gray-500 text-sm">Paket Dipilih:</span>
                   <div className="font-bold text-xl text-gray-800">{selectedPaket.name}</div>
                 </div>
 
-                {/* Perhitungan Harga Ala Hostinger */}
                 <div className="space-y-2 mb-6">
                     <div className="flex justify-between items-center text-sm text-gray-500">
                         <span>Harga Normal</span>
@@ -220,7 +239,6 @@ const OrderPages = () => {
                     </div>
                 </div>
                 
-                {/* Fitur List */}
                 <ul className="mb-6 space-y-2 bg-gray-50 p-4 rounded-lg">
                     {selectedPaket.features.map((f, i) => (
                         <li key={i} className="text-xs text-gray-600 flex items-center gap-2">
@@ -229,7 +247,6 @@ const OrderPages = () => {
                     ))}
                 </ul>
 
-                {/* Total Akhir */}
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 font-medium">Total Bayar</span>

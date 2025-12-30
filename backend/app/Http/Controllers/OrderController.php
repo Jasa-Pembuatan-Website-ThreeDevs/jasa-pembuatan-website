@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderPaidMail;
 
 class OrderController extends Controller
 {
@@ -30,11 +32,9 @@ class OrderController extends Controller
 
     /**
      * 2. PUBLIC STORE: Order dari Website (Customer)
-     * Aman dari manipulasi. Status otomatis 'belum_bayar' dulu.
      */
     public function store(Request $request)
     {
-        // Validasi input Customer
         $request->validate([
             'nama_pelanggan' => 'required',
             'paket_layanan'  => 'required',
@@ -43,16 +43,13 @@ class OrderController extends Controller
             'no_hp'          => 'required',
         ]);
 
-        // Setup Midtrans
         Config::$serverKey    = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized  = config('midtrans.is_sanitized');
         Config::$is3ds        = config('midtrans.is_3ds');
 
-                                                        // Buat ID Transaksi
-        $orderId = 'PRJ-' . strtoupper(Str::random(6)); // ID Project
+        $orderId = 'PRJ-' . strtoupper(Str::random(6)); 
 
-        // Parameter Midtrans (Full Payment di awal sesuai harga paket)
         $params = [
             'transaction_details' => [
                 'order_id'     => $orderId,
@@ -68,7 +65,6 @@ class OrderController extends Controller
         try {
             $snapToken = Snap::getSnapToken($params);
 
-            // Simpan ke Database
             $order = Order::create([
                 'order_id'          => $orderId,
                 'nama_pelanggan'    => $request->nama_pelanggan,
@@ -76,13 +72,10 @@ class OrderController extends Controller
                 'no_hp'             => $request->no_hp,
                 'paket_layanan'     => $request->paket_layanan,
                 'total_harga'       => $request->total_harga,
-
-                // PENTING: Untuk publik, status AWAL selalu 'belum_bayar'
-                // Nanti berubah jadi 'lunas' otomatis kalau Midtrans kirim notif/webhook
                 'status_pembayaran' => 'belum_bayar',
-
                 'status_pengerjaan' => 'pending',
-                'sisa_tagihan'      => 0, // Dianggap full payment (tapi belum masuk duitnya)
+                'progress'          => 0, // Default progress 0%
+                'sisa_tagihan'      => 0, 
                 'snap_token'        => $snapToken,
             ]);
 
@@ -98,31 +91,25 @@ class OrderController extends Controller
     }
 
     /**
-     * 3. ADMIN STORE MANUAL: Input Jalur Belakang (Cash/Transfer)
-     * Ini logika yang kamu minta, King! 👑
+     * 3. ADMIN STORE MANUAL
      */
     public function storeManual(Request $request)
     {
-        // Validasi khusus Admin (Boleh tentukan status)
         $request->validate([
             'nama_pelanggan'    => 'required',
             'paket_layanan'     => 'required',
             'total_harga'       => 'required|numeric',
-            // Admin boleh langsung tembak status
             'status_pembayaran' => 'required|in:belum_bayar,sudah_dp,lunas',
         ]);
 
-        // ID Manual (Beda format biar ketahuan ini inputan admin)
         $orderId = 'MANUAL-' . strtoupper(Str::random(6));
 
-        // Hitung Sisa Tagihan Otomatis
         $sisa = 0;
         if ($request->status_pembayaran == 'sudah_dp') {
-            $sisa = $request->total_harga / 2; // Kalau DP, sisa setengah
+            $sisa = $request->total_harga / 2; 
         } elseif ($request->status_pembayaran == 'belum_bayar') {
-            $sisa = $request->total_harga; // Kalau belum bayar, utang full
+            $sisa = $request->total_harga; 
         }
-        // Kalau 'lunas', sisa 0 (default)
 
         $order = Order::create([
             'order_id'          => $orderId,
@@ -131,17 +118,14 @@ class OrderController extends Controller
             'no_hp'             => $request->no_hp ?? '-',
             'paket_layanan'     => $request->paket_layanan,
             'total_harga'       => $request->total_harga,
-
-            // Status sesuai inputan Admin
             'status_pembayaran' => $request->status_pembayaran,
-
             'status_pengerjaan' => 'pending',
+            'progress'          => 0,
             'sisa_tagihan'      => $sisa,
-            'snap_token'        => null, // Cash gak butuh token midtrans
+            'snap_token'        => null, 
             'created_at'        => $request->tanggal ?? now(),
         ]);
 
-        // Kirim Email Invoice ke Klien Manual
         if ($request->email && $request->email != '-') {
             try {
                 Mail::to($request->email)->send(new OrderPaidMail($order));
@@ -155,7 +139,7 @@ class OrderController extends Controller
     }
 
     /**
-     * 4. UPDATE: Update Status/Data
+     * 4. UPDATE
      */
     public function update(Request $request, $id)
     {
@@ -173,7 +157,7 @@ class OrderController extends Controller
     }
 
     /**
-     * 5. SHOW: Detail Order
+     * 5. SHOW
      */
     public function show($id)
     {
@@ -186,7 +170,7 @@ class OrderController extends Controller
     }
 
     /**
-     * 6. DELETE: Hapus Order
+     * 6. DELETE
      */
     public function destroy($id)
     {
@@ -200,7 +184,7 @@ class OrderController extends Controller
     }
 
     /**
-     * API Dashboard: Ringkasan Income
+     * API Dashboard: Income Summary
      */
     public function incomeSummary()
     {
@@ -221,7 +205,7 @@ class OrderController extends Controller
     }
 
     /**
-     * PUBLIC API: Cek Status (Tracking)
+     * PUBLIC API: Cek Status (Tracking) - SUDAH DIPERBAIKI
      */
     public function checkStatus(Request $request)
     {
@@ -242,11 +226,19 @@ class OrderController extends Controller
             'status' => 'success',
             'data'   => [
                 'order_id'          => $order->order_id,
-                'nama'              => $order->nama_pelanggan,
-                'paket'             => $order->paket_layanan,
+                
+                // FIX: Ubah key biar sama kayak frontend (nama -> nama_pelanggan)
+                'nama_pelanggan'    => $order->nama_pelanggan, 
+                'paket_layanan'     => $order->paket_layanan,
+                
                 'total_harga'       => $order->total_harga,
                 'status_pembayaran' => $order->status_pembayaran,
                 'status_pengerjaan' => $order->status_pengerjaan,
+                
+                // FIX: Tambahkan field progress biar bar-nya jalan
+                'progress'          => $order->progress, 
+                
+                'handover_file'     => $order->handover_file,
                 'sisa_tagihan'      => $order->sisa_tagihan,
                 'snap_token'        => $order->snap_token,
                 'created_at'        => $order->created_at->format('d M Y'),
@@ -255,7 +247,7 @@ class OrderController extends Controller
     }
 
     /**
-     * PUBLIC API: Bayar Pelunasan (Generate Token Baru)
+     * PUBLIC API: Bayar Pelunasan
      */
     public function payRemaining(Request $request)
     {
@@ -299,7 +291,7 @@ class OrderController extends Controller
     }
 
     /**
-     * PUBLIC API: Cancel Order (Dipanggil saat user close popup Midtrans)
+     * PUBLIC API: Cancel Order
      */
     public function cancelOrder(Request $request)
     {
@@ -308,19 +300,47 @@ class OrderController extends Controller
         ]);
 
         $order = Order::where('order_id', $request->order_id)
-            ->where('status_pembayaran', 'belum_bayar') // Pastikan cuma yg belum bayar yg bisa diapus
+            ->where('status_pembayaran', 'belum_bayar') 
             ->first();
 
         if ($order) {
-            // OPSI 1: HAPUS PERMANEN (Sesuai requestmu)
             $order->delete();
-
-            // OPSI 2: SOFT DELETE (Cuma ganti status, biar ada history)
-            // $order->update(['status_pembayaran' => 'cancelled']);
-
             return response()->json(['message' => 'Order berhasil dibatalkan']);
         }
 
         return response()->json(['message' => 'Order tidak ditemukan atau sudah dibayar'], 404);
     }
+
+
+public function uploadHandover(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|file|max:10240', // Max 10MB (Sesuaikan kebutuhan)
+        ]);
+
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json(['message' => 'Order tidak ditemukan'], 404);
+        }
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            // Simpan ke folder public/handovers
+            // Nama file unik: HANDOVER-{OrderID}-{Time}.ext
+            $filename = 'HANDOVER-' . $order->order_id . '-' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('handovers', $filename, 'public');
+
+            // Simpan path ke database
+            $order->handover_file = '/storage/' . $path;
+            $order->save();
+
+            return response()->json([
+                'message' => 'File aset berhasil diupload!',
+                'data' => $order
+            ]);
+        }
+
+        return response()->json(['message' => 'Gagal upload file'], 400);
+    }
+
 }

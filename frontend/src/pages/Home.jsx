@@ -4,6 +4,7 @@ import { useSmoothScroll } from '../hooks/useSmoothScroll';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Marque from '../components/marque-home';
+import SEO from '../components/SEO';
 const Chatbot = React.lazy(() => import('../components/Chatbot'));
 
 gsap.registerPlugin(ScrollTrigger);
@@ -61,6 +62,10 @@ export default function Home() {
 
     return (
         <div ref={containerRef} className="bg-white pt-16">
+            <SEO 
+        title="Jasa Pembuatan Website Terbaik & Murah" 
+        description="ThreeDevs melayani jasa pembuatan website toko online, company profile, dan landing page profesional dengan harga terjangkau."
+      />
             <section id="home" className="container mx-auto px-4 py-8 md:py-10">
                 <div className="flex flex-col lg:flex-row items-center">
                     <div className="flex flex-col items-center mb-10 w-full lg:mb-0">
