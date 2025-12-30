@@ -22,9 +22,10 @@ import Admin from './Dashboard-admin'
 import LoginAdmin from './pages/LoginAdmin'
 import OrderSuccess from './pages/OrderSuccess'
 import Invoice from './pages/Invoice'
+import Testimonials from './components/Testimonial'
 
 function App() {
- const [isMaintenance, setIsMaintenance] = useState(false);
+  const [isMaintenance, setIsMaintenance] = useState(false);
   const [isLoadingCheck, setIsLoadingCheck] = useState(true);
 
   useEffect(() => {
@@ -37,8 +38,8 @@ function App() {
         if (error.response && error.response.status === 503) {
           setIsMaintenance(true);
         } else if (error.code === "ERR_NETWORK") {
-           // Kalau server mati total, tampilkan maintenance juga
-           setIsMaintenance(true);
+          // Kalau server mati total, tampilkan maintenance juga
+          setIsMaintenance(true);
         }
       } finally {
         setIsLoadingCheck(false);
@@ -64,11 +65,11 @@ function App() {
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg border-b-4 border-red-500">
           <h1 className="text-3xl font-bold text-red-600 mb-2">Sistem Sedang Perbaikan</h1>
           <p className="text-gray-600">
-            Website sedang dalam pemeliharaan rutin oleh Tim Developer. 
+            Website sedang dalam pemeliharaan rutin oleh Tim Developer.
             Silakan kembali lagi nanti.
           </p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
           >
             Coba Refresh
@@ -78,13 +79,13 @@ function App() {
     );
   }
   return (
-   <>
+    <>
       <Routes>
         <Route path="/order" element={<OrderPage />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
-        <Route path='/project-detail' element={<ProjectDetail />} />
+        <Route path='/project/:id' element={<ProjectDetail />} />        
         <Route path='/track' element={<TrackOrder />} />
         <Route path='/order-success' element={<OrderSuccess />} />
         <Route path="/invoice/:orderId" element={<Invoice />} />
@@ -95,6 +96,7 @@ function App() {
             <About />
             <Services />
             <Portfolio />
+            <Testimonials />
             <ContactPage />
             <CTASection />
             <Footer />
@@ -102,7 +104,7 @@ function App() {
         } />
         <Route path="/dashboard/admin" element={<Admin />} />
         <Route path="/login/admin" element={<LoginAdmin />} />
-        
+
         {/* Catch-all route for 404 Not Found */}
         <Route path="*" element={<NotFound />} />
       </Routes>
