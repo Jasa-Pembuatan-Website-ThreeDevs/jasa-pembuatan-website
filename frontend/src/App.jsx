@@ -22,6 +22,7 @@ import Admin from './Dashboard-admin'
 import LoginAdmin from './pages/LoginAdmin'
 import OrderSuccess from './pages/OrderSuccess'
 import Invoice from './pages/Invoice'
+import Team from './pages/Team'
 import Testimonials from './components/Testimonial'
 
 function App() {
@@ -96,6 +97,7 @@ function App() {
             <About />
             <Services />
             <Portfolio />
+            <Team />
             <Testimonials />
             <ContactPage />
             <CTASection />

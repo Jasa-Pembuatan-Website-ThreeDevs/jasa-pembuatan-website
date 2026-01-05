@@ -31,7 +31,7 @@ const Portfolio = () => {
   return (
     <>
       <Navbar />
-      <div id="portfolio" className="bg-gray-50 min-h-screen pt-24 pb-12 px-4">
+      <div id="portfolio" className="bg-gray-50 pt-24 pb-12 px-4">
         <div className="max-w-6xl mx-auto">
           
           <div className="text-center mb-12">
