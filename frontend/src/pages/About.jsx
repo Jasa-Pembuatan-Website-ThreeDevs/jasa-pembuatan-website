@@ -183,7 +183,7 @@ export default function About() {
                             </a>
                         </div>
                     </div>
-                    <div className="lg:w-1/2 flex justify-center lg:justify-end">
+                    <div className="hidden md:hidden lg:block lg:w-1/2 flex justify-center lg:justify-end">
 
                         <div ref={imageRef} className="relative w-full max-w-xl floating-element">
 

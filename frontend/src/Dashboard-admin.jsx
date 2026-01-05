@@ -294,14 +294,14 @@ const AdminDashboard = () => {
             {/* MAIN CONTENT */}
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
                 <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-center md:justify-between px-8 shadow-sm">
-                    <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="md:hidden text-slate-500 hover:text-slate-800 transition absolute left-4"><i className="fa-solid fa-bars text-xl"></i></button>
+                    <button onClick={() => setIsMobileOpen(true)} className="md:hidden text-slate-500 hover:text-slate-800 transition absolute left-4"><i className="fa-solid fa-bars text-xl"></i></button>
                     <div className="flex items-center gap-4 ml-auto">
                         <div className="text-right hidden sm:block"><p className="text-sm font-bold text-slate-700">{admin}</p><p className="text-xs text-slate-500">Super Admin</p></div>
                         <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold border border-indigo-200 shadow-sm">{inisial}</div>
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50">
+                <main onClick={() => setIsMobileOpen(false)} className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50">
                     {page === "dashboard" && (
                         <div className="space-y-8 animate-fade-in-up">
                             {/* STATS CARDS */}

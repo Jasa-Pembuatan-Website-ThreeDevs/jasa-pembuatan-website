@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom"; // Tambahkan ini
+import { NavHashLink as Link } from "react-router-hash-link"; // Tambahkan ini
 import { useSmoothScroll } from "../hooks/useSmoothScroll";
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -70,7 +70,6 @@ export default function Navbar() {
                         <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                             ThreeDev
                         </span>
-                        <div className="w-16 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                     </div>
                 </Link>
 
@@ -88,16 +87,16 @@ export default function Navbar() {
                 <nav ref={navRef} className="hidden md:flex items-center">
                     {[
                         { icon: "fa-house", text: "Home", link: "/#" },
-                        { icon: "fa-circle-info", text: "About", link: "#about" },
-                        { icon: "fa-dollar", text: "Services", link: "#services" },
-                        { icon: "fa-briefcase", text: "Portfolio", link: "#portfolio" },
-                        { icon: "fa-comment", text: "Testimonials", link: "#testimonials" },
-                        { icon: "fa-envelope", text: "Contact", link: "#contact" },
+                        { icon: "fa-circle-info", text: "About", link: "/#about" },
+                        { icon: "fa-dollar", text: "Services", link: "/#services" },
+                        { icon: "fa-briefcase", text: "Portfolio", link: "/#portfolio" },
+                        { icon: "fa-comment", text: "Testimonials", link: "/#testimonials" },
+                        { icon: "fa-envelope", text: "Contact", link: "/#contact" },
                         
                     ].map((item, index) => (
-                        <a
+                        <Link
                             key={index}
-                            href={item.link}
+                            to={item.link}
                             className="group relative px-4 py-1 mx-1 rounded-full transition-all duration-300"
                         >
                             <div className="flex items-center gap-2">
@@ -107,7 +106,7 @@ export default function Navbar() {
                                 </span>
                             </div>
                             <div className="absolute inset-0 bg-indigo-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
-                        </a>
+                        </Link>
                     ))}
 
                     {/* CTA Button */}
@@ -124,30 +123,30 @@ export default function Navbar() {
                 <div className={`md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t transition-all duration-300 ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                     <div className="py-4 px-4 space-y-4">
                         {[
-                            { icon: "fa-house", text: "Home" },
-                            { icon: "fa-circle-info", text: "About" },
-                            { icon: "fa-dollar", text: "Services" },
-                            { icon: "fa-briefcase", text: "Portfolio" },
-                            { icon: "fa-envelope", text: "Contact" }
+                            { icon: "fa-house", text: "home" },
+                            { icon: "fa-circle-info", text: "about" },
+                            { icon: "fa-dollar", text: "services" },
+                            { icon: "fa-briefcase", text: "portfolio" },
+                            { icon: "fa-envelope", text: "contact" }
                         ].map((item, index) => (
-                            <a
+                            <Link
                                 key={index}
-                                href={`#${item.text.toLowerCase()}`}
+                                to={`/#${item.text.toLowerCase()}`}
                                 className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-indigo-50 transition-colors"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 <i className={`fa-solid ${item.icon} text-indigo-600`}></i>
                                 <span className="text-gray-700 font-medium">{item.text}</span>
-                            </a>
+                            </Link>
                         ))}
-                        <a
+                        <Link
                             href="/order"
                             className="flex items-center justify-center gap-3 bg-indigo-600 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-md hover:bg-indigo-700"
                             onClick={() => setIsMenuOpen(false)}
                         >
                             <i className="fa-solid fa-cart-shopping"></i>
                             <span className="font-semibold">Pesan Sekarang</span>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
