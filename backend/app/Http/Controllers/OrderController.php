@@ -141,14 +141,16 @@ class OrderController extends Controller
     /**
      * 4. UPDATE
      */
-    public function update(Request $request, $id)
+    public function update(\App\Http\Requests\UpdateOrderRequest $request, $id)
     {
         $order = Order::find($id);
         if (! $order) {
             return response()->json(['message' => 'Data tidak ditemukan'], 404);
         }
 
-        $order->update($request->all());
+        // Now using validated data, preventing mass assignment vulnerabilities.
+        $validatedData = $request->validated();
+        $order->update($validatedData);
 
         return response()->json([
             'message' => 'Data berhasil diperbarui',

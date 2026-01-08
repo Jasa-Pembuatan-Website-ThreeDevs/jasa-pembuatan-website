@@ -21,4 +21,8 @@ class Order extends Model
         'snap_token',
         'progress',
     ];
+
+    protected $casts = [
+        'next_due_date' => 'date', 
+    ];
 }

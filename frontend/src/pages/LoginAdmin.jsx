@@ -108,7 +108,7 @@ const LoginAdmin = () => {
                 {/* Footer Login */}
                 <div className="p-6 bg-slate-50 text-center border-t border-slate-100">
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-tighter">
-                        &copy; 2025 Admin.Co System &bull; Secure Connection
+                        &copy; {new Date().getFullYear()} ThreeDevs System &bull; Secure Connection
                     </p>
                 </div>
             </div>
