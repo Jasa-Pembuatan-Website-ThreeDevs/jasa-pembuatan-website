@@ -244,53 +244,13 @@ const TeamPage = () => {
             <Navbar />
 
             <main className="max-w-7xl mx-auto px-4 py-6">
-              <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Anggota Kami </h1>
-          </div>
-                {/* Statistik */}
-                <div className="mb-12">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-6 rounded-xl shadow-lg">
-                            <h3 className="text-2xl font-bold">
-                                {teamMembers.length}
-                            </h3>
-                            <p className="text-indigo-100">Anggota Tim</p>
-                        </div>
-                        <div className="bg-gradient-to-r from-white to-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
-                            <h3 className="text-2xl font-bold text-gray-800">
-                                {teamMembers.reduce(
-                                    (total, member) =>
-                                        total + member.projectsCompleted,
-                                    0
-                                )}
-                            </h3>
-                            <p className="text-gray-600">
-                                Total Proyek Selesai
-                            </p>
-                        </div>
-                        <div className="bg-gradient-to-r from-white to-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
-                            <h3 className="text-2xl font-bold text-gray-800">
-                                {new Date().getFullYear() - 2018}
-                            </h3>
-                            <p className="text-gray-600">Tahun Pengalaman</p>
-                        </div>
-                    </div>
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
+                        Anggota Kami{" "}
+                    </h1>
                 </div>
 
-                {/* Daftar Anggota Tim */}
                 <div>
-                    <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-2xl font-bold text-gray-800">
-                            Anggota Tim
-                        </h2>
-                        <div className="text-sm text-gray-500">
-                            <span className="font-medium">
-                                {teamMembers.length}
-                            </span>{" "}
-                            orang
-                        </div>
-                    </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {teamMembers.map(member => (
                             <TeamMemberCard

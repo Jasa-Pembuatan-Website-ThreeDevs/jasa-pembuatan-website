@@ -170,7 +170,7 @@ export default function Services() {
           {packages.map((pkg, i) => (
             <div
               key={i}
-              className={`rounded-3xl h-fit p-8 transition-all duration-500 transform hover:-translate-y-3 flex flex-col relative
+              className={`rounded-3xl h-fit md:h-[1100px] lg:h-[860px] p-8 transition-all duration-500 transform hover:-translate-y-3 flex flex-col relative
                 ${
                   pkg.highlight
                     ? "border-2 border-indigo-500 shadow-2xl bg-white scale-105 z-10"
