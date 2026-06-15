@@ -4,6 +4,9 @@ export const metadata = {
   title: "ThreeDevs — Wujudkan Website Impian Anda",
   description:
     "ThreeDevs adalah IT Agency yang menghadirkan website modern, performa tinggi, dan desain elegan untuk bisnis Anda.",
+  alternates: {
+    canonical: "https://threedevs.id",
+  },
 };
 
 export default function RootLayout({ children }) {

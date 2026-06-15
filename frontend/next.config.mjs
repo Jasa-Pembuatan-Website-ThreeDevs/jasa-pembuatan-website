@@ -12,6 +12,11 @@ const nextConfig = {
       },
     ],
   },
+  // Optimasi build
+  compiler: {
+    // Hapus console.log di production untuk performa & keamanan
+    removeConsole: process.env.NODE_ENV === "production",
+  },
 };
 
 export default nextConfig;
