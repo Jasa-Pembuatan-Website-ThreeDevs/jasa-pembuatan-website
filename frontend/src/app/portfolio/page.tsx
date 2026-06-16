@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, type Transition, type Variants } from "framer-motion";
 import { ArrowUpRight, ExternalLink, Layers3, Sparkles } from "lucide-react";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
+import api from "@/lib/api";
 
 const KATEGORI = ["Semua", "Landing Page", "Web App", "E-Commerce"] as const;
 type Kategori = (typeof KATEGORI)[number];
@@ -18,90 +19,11 @@ interface ProyekPortfolio {
   deskripsi: string;
   gambar: string;
   tinggi: string;
+  link_demo?: string;
 }
 
-const PROYEK: ProyekPortfolio[] = [
-  {
-    id: 1,
-    judul: "Nusantara Property",
-    kategori: "Landing Page",
-    deskripsi:
-      "Landing page premium untuk agen properti dengan desain modern dan integrasi WhatsApp.",
-    gambar:
-      "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&q=80",
-    tinggi: "h-64",
-  },
-  {
-    id: 2,
-    judul: "Warung Digital POS",
-    kategori: "Web App",
-    deskripsi:
-      "Sistem kasir berbasis web dengan dashboard analitik dan manajemen stok real-time.",
-    gambar:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
-    tinggi: "h-80",
-  },
-  {
-    id: 3,
-    judul: "BatikStore Official",
-    kategori: "E-Commerce",
-    deskripsi:
-      "Toko online batik dengan payment gateway Midtrans dan sistem pengiriman otomatis.",
-    gambar:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
-    tinggi: "h-72",
-  },
-  {
-    id: 4,
-    judul: "Klinik Sehat Sentosa",
-    kategori: "Landing Page",
-    deskripsi:
-      "Website profil klinik dengan fitur booking online dan informasi dokter lengkap.",
-    gambar:
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
-    tinggi: "h-80",
-  },
-  {
-    id: 5,
-    judul: "EduPlatform LMS",
-    kategori: "Web App",
-    deskripsi:
-      "Platform pembelajaran online dengan video streaming, kuis interaktif, dan sertifikat digital.",
-    gambar:
-      "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&q=80",
-    tinggi: "h-64",
-  },
-  {
-    id: 6,
-    judul: "FashionHub Indonesia",
-    kategori: "E-Commerce",
-    deskripsi:
-      "Marketplace fashion dengan fitur wishlist, review produk, dan integrasi multi-kurir.",
-    gambar:
-      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
-    tinggi: "h-72",
-  },
-  {
-    id: 7,
-    judul: "Kopi Nusantara",
-    kategori: "Landing Page",
-    deskripsi:
-      "Landing page brand kopi lokal dengan storytelling visual dan animasi scroll halus.",
-    gambar:
-      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80",
-    tinggi: "h-72",
-  },
-  {
-    id: 8,
-    judul: "LogistikApp",
-    kategori: "Web App",
-    deskripsi:
-      "Aplikasi tracking pengiriman dengan peta real-time dan notifikasi otomatis.",
-    gambar:
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&q=80",
-    tinggi: "h-64",
-  },
-];
+const TINGGI_CYCLE = ["h-64", "h-80", "h-72"] as const;
+
 
 const animasiMasuk: Variants = {
   initial: { opacity: 0, scale: 0.97, y: 18 },
@@ -125,11 +47,43 @@ const animasiGrid = {
 
 export default function HalamanPortfolio() {
   const [filterAktif, setFilterAktif] = useState<Kategori>("Semua");
+  const [proyek, setProyek] = useState<ProyekPortfolio[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPortfolio() {
+      try {
+        const res = await api.get("/portfolios");
+        const data: ProyekPortfolio[] = (res.data as any[]).map((item, idx) => ({
+          id: item.id,
+          judul: item.judul,
+          kategori: item.kategori as Kategori,
+          deskripsi: item.deskripsi ?? "",
+          gambar: item.gambar?.startsWith("http") ? item.gambar : `http://localhost:8000${item.gambar}`,
+          tinggi: TINGGI_CYCLE[idx % TINGGI_CYCLE.length],
+          link_demo: item.link_demo,
+        }));
+        setProyek(data);
+      } catch {
+        // Fallback to empty
+        setProyek([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPortfolio();
+  }, []);
 
   const proyekTerfilter =
     filterAktif === "Semua"
-      ? PROYEK
-      : PROYEK.filter((p) => p.kategori === filterAktif);
+      ? proyek
+      : proyek.filter((p) => p.kategori === filterAktif);
+
+  const stats = [
+    [`${proyek.length}`, "Project"],
+    [`${new Set(proyek.map((p) => p.kategori)).size}`, "Kategori"],
+    ["100%", "Responsive"],
+  ] as const;
 
   return (
     <div className="min-h-screen overflow-hidden bg-zinc-950 text-zinc-100 selection:bg-cyan-400/20 selection:text-cyan-100">
@@ -168,11 +122,7 @@ export default function HalamanPortfolio() {
               transition={{ delay: 0.1, duration: 0.5 }}
               className="grid grid-cols-3 gap-3"
             >
-              {[
-                ["8", "Project"],
-                ["3", "Kategori"],
-                ["100%", "Responsive"],
-              ].map(([value, label]) => (
+              {stats.map(([value, label]) => (
                 <div
                   key={label}
                   className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-4"
@@ -223,13 +173,23 @@ export default function HalamanPortfolio() {
                 exit={{ opacity: 0, transition: { duration: 0.2 } }}
                 className="columns-1 gap-5 sm:columns-2"
               >
-                {proyekTerfilter.map((proyek) => (
-                  <KartuPortfolio key={proyek.id} proyek={proyek} />
-                ))}
+                {loading
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="mb-5 break-inside-avoid rounded-lg border border-white/[0.08] bg-white/[0.025]">
+                        <div className="h-64 animate-pulse rounded-t-lg bg-white/[0.04]" />
+                        <div className="p-6 space-y-3">
+                          <div className="h-4 w-3/4 animate-pulse rounded bg-white/[0.06]" />
+                          <div className="h-3 w-full animate-pulse rounded bg-white/[0.04]" />
+                        </div>
+                      </div>
+                    ))
+                  : proyekTerfilter.map((proyek) => (
+                      <KartuPortfolio key={proyek.id} proyek={proyek} />
+                    ))}
               </motion.div>
             </AnimatePresence>
 
-            {proyekTerfilter.length === 0 && (
+            {!loading && proyekTerfilter.length === 0 && (
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

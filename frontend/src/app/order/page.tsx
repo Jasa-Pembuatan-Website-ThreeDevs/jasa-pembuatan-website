@@ -12,8 +12,10 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import Swal from "sweetalert2";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
+import api from "@/lib/api";
 
 type Package = {
   id: string;
@@ -83,6 +85,18 @@ const formatRupiah = (n: number) => `Rp ${n.toLocaleString("id-ID")}`;
 const hitungHemat = (asli: number, promo: number) =>
   Math.round(((asli - promo) / asli) * 100);
 
+function loadSnapJs(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).snap) return resolve();
+    const script = document.createElement("script");
+    script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
+    script.setAttribute("data-client-key", "SB-Mid-client-Ga97FJs02n0FVn3N"); // Replace with your Midtrans client key
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Gagal memuat Midtrans"));
+    document.body.appendChild(script);
+  });
+}
+
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 18 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
@@ -106,12 +120,54 @@ export default function OrderPage() {
     event?.preventDefault();
 
     if (formData.email !== formData.confirmEmail) {
-      alert("Email dan konfirmasi email tidak sama.");
+      Swal.fire({ icon: "error", title: "Email tidak cocok", text: "Email dan konfirmasi email tidak sama.", confirmButtonColor: "#22d3ee" });
+      return;
+    }
+
+    if (!formData.nama || !formData.email || !formData.no_hp) {
+      Swal.fire({ icon: "warning", title: "Data belum lengkap", text: "Mohon isi semua field yang wajib.", confirmButtonColor: "#22d3ee" });
       return;
     }
 
     setLoading(true);
-    setTimeout(() => setLoading(false), 1200);
+    try {
+      const res = await api.post("/orders", {
+        nama_pelanggan: formData.nama,
+        email: formData.email,
+        no_hp: formData.no_hp,
+        paket_layanan: selectedPaket.name,
+        total_harga: selectedPaket.price,
+      });
+
+      const snapToken = res.data.token;
+      const orderData = res.data.data;
+
+      // Load Midtrans snap.js dynamically
+      await loadSnapJs();
+
+      // Open Midtrans payment popup
+      (window as any).snap.pay(snapToken, {
+        onSuccess: async (result: any) => {
+          Swal.fire({ icon: "success", title: "Pembayaran Berhasil!", text: "Pesanan Anda sedang diproses.", confirmButtonColor: "#22d3ee" });
+          window.location.href = "/track-order";
+        },
+        onPending: () => {
+          Swal.fire({ icon: "info", title: "Menunggu Pembayaran", text: `Invoice: ${orderData.order_id}. Selesaikan pembayaran Anda.`, confirmButtonColor: "#22d3ee" });
+          window.location.href = "/track-order";
+        },
+        onError: () => {
+          Swal.fire({ icon: "error", title: "Pembayaran Gagal", text: "Silakan coba lagi.", confirmButtonColor: "#22d3ee" });
+        },
+        onClose: () => {
+          // User closed popup without paying
+        },
+      });
+    } catch (err: any) {
+      const msg = err.response?.data?.error || err.response?.data?.message || "Terjadi kesalahan. Silakan coba lagi.";
+      Swal.fire({ icon: "error", title: "Gagal Memproses", text: msg, confirmButtonColor: "#22d3ee" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

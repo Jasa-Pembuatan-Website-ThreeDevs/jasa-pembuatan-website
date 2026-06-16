@@ -1,4 +1,5 @@
 import "./globals.css";
+import BackendProvider from "@/components/providers/BackendProvider";
 
 export const metadata = {
   title: "ThreeDevs — Wujudkan Website Impian Anda",
@@ -13,7 +14,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="id" className="h-full antialiased">
       <body className="min-h-full bg-zinc-950 text-zinc-100 font-sans">
-        {children}
+        <BackendProvider>
+          {children}
+        </BackendProvider>
       </body>
     </html>
   );

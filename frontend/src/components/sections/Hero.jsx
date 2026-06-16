@@ -192,7 +192,7 @@ function BrowserPreview() {
         className="relative z-10"
       >
         <Safari
-          url="portfolio.threedevs.dev"
+          url="threedevs.web.id"
           imageSrc="/threedevs.png"
           className="drop-shadow-[0_28px_80px_rgba(0,0,0,0.45)]"
         />

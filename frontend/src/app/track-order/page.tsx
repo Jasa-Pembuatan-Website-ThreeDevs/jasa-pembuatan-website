@@ -13,8 +13,10 @@ import {
   Sparkles,
   UserRound,
 } from "lucide-react";
+import Swal from "sweetalert2";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
+import api from "@/lib/api";
 
 type TimelineStatus = "done" | "active" | "pending";
 
@@ -24,49 +26,50 @@ type TimelineItem = {
   status: TimelineStatus;
 };
 
-type ProjectOrder = {
-  invoice: string;
-  client: string;
-  packageName: string;
-  estimate: string;
+
+type OrderData = {
+  order_id: string;
+  nama_pelanggan: string;
+  paket_layanan: string;
+  total_harga: number;
+  status_pembayaran: string;
+  status_pengerjaan: string;
   progress: number;
-  timeline: TimelineItem[];
+  sisa_tagihan: number;
+  created_at: string;
 };
 
-const DUMMY_ORDER: ProjectOrder = {
-  invoice: "#INV-2026-TD01",
-  client: "Nadya Prameswari",
-  packageName: "Paket Bisnis Website",
-  estimate: "28 Juni 2026",
-  progress: 60,
-  timeline: [
+function buildTimeline(order: OrderData): TimelineItem[] {
+  const p = order.progress ?? 0;
+  const paid = order.status_pembayaran === "lunas" || order.status_pembayaran === "sudah_dp";
+  return [
     {
       title: "Pembayaran Diterima",
       description: "Invoice telah dikonfirmasi dan project resmi masuk antrean.",
-      status: "done",
+      status: paid ? "done" : "pending",
     },
     {
       title: "Riset & UI/UX Design",
       description: "Struktur halaman, referensi visual, dan flow pengguna selesai.",
-      status: "done",
+      status: p >= 25 ? "done" : p >= 10 ? "active" : "pending",
     },
     {
       title: "Proses Development",
       description: "Frontend sedang dibangun dan diintegrasikan ke sistem utama.",
-      status: "active",
+      status: p >= 75 ? "done" : p >= 40 ? "active" : "pending",
     },
     {
       title: "Quality Assurance",
       description: "Pemeriksaan responsif, performa, dan detail interaksi.",
-      status: "pending",
+      status: p >= 90 ? "done" : p >= 80 ? "active" : "pending",
     },
     {
       title: "Handover / Selesai",
       description: "Deploy final, akses admin, dan panduan singkat penggunaan.",
-      status: "pending",
+      status: p >= 100 ? "done" : p >= 95 ? "active" : "pending",
     },
-  ],
-};
+  ];
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -75,16 +78,38 @@ const fadeUp = {
 
 export default function TrackOrderPage() {
   const [trackingCode, setTrackingCode] = useState("");
+  const [phone, setPhone] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  const [orderData, setOrderData] = useState<OrderData | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const normalizedCode = useMemo(
     () => trackingCode.trim().toUpperCase(),
     [trackingCode],
   );
 
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+  const handleSearch = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setHasSearched(true);
+    if (!trackingCode.trim() || !phone.trim()) {
+      Swal.fire({ icon: "warning", title: "Data belum lengkap", text: "Masukkan nomor invoice dan nomor WhatsApp.", confirmButtonColor: "#22d3ee" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await api.post("/track-order", {
+        order_id: trackingCode.trim(),
+        no_hp: phone.trim(),
+      });
+      setOrderData(res.data.data);
+      setHasSearched(true);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Order tidak ditemukan.";
+      Swal.fire({ icon: "error", title: "Tidak Ditemukan", text: msg, confirmButtonColor: "#22d3ee" });
+      setOrderData(null);
+      setHasSearched(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -121,27 +146,37 @@ export default function TrackOrderPage() {
 
           <form
             onSubmit={handleSearch}
-            className="mt-10 flex w-full flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.035] p-2 shadow-2xl shadow-black/30 backdrop-blur-xl transition-all duration-300 focus-within:border-cyan-300/50 focus-within:ring-1 focus-within:ring-cyan-300/20 sm:flex-row"
+            className="mt-10 flex w-full flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.035] p-3 shadow-2xl shadow-black/30 backdrop-blur-xl transition-all duration-300 focus-within:border-cyan-300/50 focus-within:ring-1 focus-within:ring-cyan-300/20"
           >
-            <input
-              value={trackingCode}
-              onChange={(event) => setTrackingCode(event.target.value)}
-              placeholder="Contoh: INV-2026-TD01"
-              className="min-h-12 flex-1 bg-transparent px-4 text-sm text-zinc-200 outline-none placeholder:text-zinc-600"
-              aria-label="Nomor invoice atau kode pesanan"
-            />
+            <div className="flex w-full flex-col gap-3 sm:flex-row">
+              <input
+                value={trackingCode}
+                onChange={(event) => setTrackingCode(event.target.value)}
+                placeholder="Contoh: PRJ-A1B2C3"
+                className="min-h-12 flex-1 bg-transparent px-4 text-sm text-zinc-200 outline-none placeholder:text-zinc-600"
+                aria-label="Nomor invoice atau kode pesanan"
+              />
+              <input
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="No. WhatsApp (08xx...)"
+                className="min-h-12 flex-1 bg-transparent px-4 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 sm:max-w-[14rem]"
+                aria-label="Nomor WhatsApp"
+              />
+            </div>
             <button
               type="submit"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-zinc-100 px-6 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-white hover:shadow-lg hover:shadow-cyan-500/10 active:scale-[0.98]"
+              disabled={loading}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-zinc-100 px-6 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-white hover:shadow-lg hover:shadow-cyan-500/10 active:scale-[0.98] disabled:opacity-60"
             >
               <Search className="h-4 w-4" />
-              Cari
+              {loading ? "Mencari..." : "Cari"}
             </button>
           </form>
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {hasSearched && (
+          {hasSearched && orderData && (
             <motion.div
               key="result"
               initial={{ opacity: 0, y: 24, scale: 0.98 }}
@@ -155,20 +190,19 @@ export default function TrackOrderPage() {
                   className="sm:col-span-2"
                   icon={<FileText className="h-5 w-5" />}
                   label="Nomor Invoice"
-                  value={normalizedCode || DUMMY_ORDER.invoice}
-                  helper={DUMMY_ORDER.invoice}
+                  value={orderData.order_id}
                 />
 
                 <InfoTile
                   icon={<UserRound className="h-5 w-5" />}
                   label="Nama Klien"
-                  value={DUMMY_ORDER.client}
+                  value={orderData.nama_pelanggan}
                 />
 
                 <InfoTile
                   icon={<Layers3 className="h-5 w-5" />}
                   label="Paket Dipilih"
-                  value={DUMMY_ORDER.packageName}
+                  value={orderData.paket_layanan}
                 />
 
                 <div className="rounded-lg border border-white/10 bg-white/[0.03] p-6 shadow-2xl shadow-black/20 sm:col-span-2">
@@ -176,21 +210,21 @@ export default function TrackOrderPage() {
                     <div>
                       <div className="flex items-center gap-2 text-sm text-zinc-500">
                         <CalendarDays className="h-4 w-4 text-violet-300" />
-                        Estimasi Selesai
+                        Status Pembayaran
                       </div>
-                      <p className="mt-3 text-2xl font-semibold tracking-tight text-zinc-200">
-                        {DUMMY_ORDER.estimate}
+                      <p className="mt-3 text-lg font-semibold tracking-tight text-zinc-200 capitalize">
+                        {orderData.status_pembayaran.replace("_", " ")}
                       </p>
                     </div>
                     <div className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-medium text-cyan-200">
-                      {DUMMY_ORDER.progress}%
+                      {orderData.progress}%
                     </div>
                   </div>
 
                   <div className="mt-8 h-2 overflow-hidden rounded-full bg-zinc-900">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${DUMMY_ORDER.progress}%` }}
+                      animate={{ width: `${orderData.progress}%` }}
                       transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
                       className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400"
                     />
@@ -208,18 +242,18 @@ export default function TrackOrderPage() {
                       Status Timeline
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-zinc-500">
-                      Progres project saat ini sedang berada di tahap
-                      development.
+                      Progres project saat ini sedang berada di tahap{" "}
+                      {orderData.status_pengerjaan}.
                     </p>
                   </div>
 
                   <div className="flex w-fit items-center gap-2 rounded-full border border-white/10 bg-zinc-950/70 px-4 py-2 text-xs font-medium text-zinc-400">
                     <CircleDollarSign className="h-4 w-4 text-zinc-500" />
-                    Pembayaran valid
+                    {orderData.status_pembayaran === "lunas" ? "Lunas" : orderData.status_pembayaran === "sudah_dp" ? "DP Dibayar" : "Belum Bayar"}
                   </div>
                 </div>
 
-                <StatusTimeline items={DUMMY_ORDER.timeline} />
+                <StatusTimeline items={buildTimeline(orderData)} />
               </section>
             </motion.div>
           )}
@@ -235,13 +269,11 @@ function InfoTile({
   icon,
   label,
   value,
-  helper,
   className = "",
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
-  helper?: string;
   className?: string;
 }) {
   return (
@@ -255,11 +287,6 @@ function InfoTile({
       <p className="mt-2 text-xl font-semibold tracking-tight text-zinc-300">
         {value}
       </p>
-      {helper && (
-        <p className="mt-3 text-xs leading-5 text-zinc-600">
-          Dummy result: {helper}
-        </p>
-      )}
     </div>
   );
 }

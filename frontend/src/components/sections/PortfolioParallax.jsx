@@ -119,7 +119,7 @@ export default function PortfolioParallaxSection() {
 
       <div className="relative -mt-28 px-6 pb-24 sm:-mt-36 lg:-mt-44">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 border-t border-white/[0.07] pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-xl text-sm leading-6 text-zinc-500">
+          <p className="max-w-xl text-sm leading-6 text-cyan-50 font-bold underline decoration-solid">
             Butuh gaya visual yang berbeda? Kami bisa adaptasi dari brand,
             target audiens, dan tujuan campaign kamu.
           </p>

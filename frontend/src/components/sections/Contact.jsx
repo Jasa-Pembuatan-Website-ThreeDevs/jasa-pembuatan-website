@@ -89,7 +89,7 @@ export default function ContactSection() {
             <ContactItem
               icon={<Mail className="h-4 w-4" />}
               label="Email"
-              value="hello@threedevs.id"
+              value="threedevs@gmail.com"
             />
             <ContactItem
               icon={<Phone className="h-4 w-4" />}
