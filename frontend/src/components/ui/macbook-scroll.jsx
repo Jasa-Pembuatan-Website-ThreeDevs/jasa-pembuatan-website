@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
@@ -33,14 +34,9 @@ export const MacbookScroll = ({ src, showGradient, title, badge }) => {
     offset: ["start start", "end start"],
   });
 
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    // Deteksi ukuran layar untuk responsivitas
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      setIsMobile(true);
-    }
-  }, []);
+  const [isMobile] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768
+  );
 
   // Transformasi scale & posisi berdasarkan progress scroll
   const scaleX = useTransform(scrollYProgress, [0, 0.3], [1.2, isMobile ? 1 : 1.5]);
@@ -134,9 +130,11 @@ export const Lid = ({ scaleX, scaleY, rotate, translate, src }) => {
       >
         <div className="absolute inset-0 rounded-lg bg-[#272729]" />
         {src && (
-          <img
+          <Image
             src={src}
             alt="ThreeDevs website preview"
+            fill
+            sizes="512px"
             className="absolute inset-0 h-full w-full rounded-lg object-cover object-left-top"
           />
         )}
@@ -335,14 +333,9 @@ export const OptionKey = ({ className }) => {
 /* === Logo ThreeDevs untuk tutup layar MacBook === */
 const ThreeDevsLogo = () => {
   return (
-    <svg width="66" height="65" viewBox="0 0 66 65" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white">
-      <path
-        d="M8 8.05571C8 8.05571 54.9009 18.1782 57.8687 30.062C60.8365 41.9458 9.05432 57.4696 9.05432 57.4696"
-        stroke="currentColor"
-        strokeWidth="15"
-        strokeMiterlimit="3.86874"
-        strokeLinecap="round"
-      />
-    </svg>
+    <div className="flex flex-col items-center justify-center">
+    <image src="/threedevs-logo.png" alt="ThreeDevs Logo" width={120} height={120} className="mb-1" />
+   <h1>ThreeDevs</h1>
+   </div>
   );
 };

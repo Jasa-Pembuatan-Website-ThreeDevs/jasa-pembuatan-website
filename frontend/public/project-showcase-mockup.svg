@@ -1,0 +1,87 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="700" fill="#09090B"/>
+  <rect width="1200" height="700" fill="url(#grid)" opacity="0.32"/>
+  <circle cx="236" cy="132" r="220" fill="#22D3EE" opacity="0.11"/>
+  <circle cx="1016" cy="134" r="230" fill="#8B5CF6" opacity="0.12"/>
+  <circle cx="868" cy="612" r="240" fill="#14B8A6" opacity="0.09"/>
+
+  <g transform="translate(74 58)">
+    <rect width="1052" height="584" rx="26" fill="#111113" stroke="white" stroke-opacity="0.08"/>
+    <rect x="28" y="28" width="996" height="528" rx="18" fill="#0C0C0F" stroke="white" stroke-opacity="0.07"/>
+
+    <g transform="translate(64 62)">
+      <rect width="122" height="34" rx="17" fill="white" fill-opacity="0.06" stroke="white" stroke-opacity="0.08"/>
+      <circle cx="24" cy="17" r="5" fill="#67E8F9"/>
+      <text x="39" y="21" fill="#A1A1AA" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2.2">PORTFOLIO</text>
+    </g>
+
+    <text x="64" y="166" fill="#FAFAFA" font-family="Inter, Arial, sans-serif" font-size="50" font-weight="700">
+      Project showcase
+    </text>
+    <text x="64" y="220" fill="#71717A" font-family="Inter, Arial, sans-serif" font-size="19">
+      Preview website client, web app, dan e-commerce dalam satu tampilan.
+    </text>
+
+    <g transform="translate(64 266)">
+      <rect width="140" height="42" rx="12" fill="#FAFAFA"/>
+      <text x="33" y="27" fill="#09090B" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">Semua</text>
+      <rect x="152" width="140" height="42" rx="12" fill="white" fill-opacity="0.045" stroke="white" stroke-opacity="0.08"/>
+      <text x="187" y="27" fill="#A1A1AA" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">Web App</text>
+      <rect x="304" width="158" height="42" rx="12" fill="white" fill-opacity="0.045" stroke="white" stroke-opacity="0.08"/>
+      <text x="334" y="27" fill="#A1A1AA" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">E-Commerce</text>
+    </g>
+
+    <g transform="translate(602 72)">
+      <rect width="356" height="188" rx="18" fill="#18181B" stroke="white" stroke-opacity="0.08"/>
+      <rect x="22" y="22" width="312" height="86" rx="14" fill="url(#cardA)"/>
+      <rect x="22" y="126" width="190" height="14" rx="7" fill="#E4E4E7"/>
+      <rect x="22" y="150" width="262" height="10" rx="5" fill="#52525B"/>
+      <rect x="286" y="132" width="48" height="28" rx="8" fill="#22D3EE" fill-opacity="0.18"/>
+    </g>
+
+    <g transform="translate(602 284)">
+      <rect width="170" height="212" rx="18" fill="#18181B" stroke="white" stroke-opacity="0.08"/>
+      <rect x="18" y="18" width="134" height="112" rx="14" fill="url(#cardB)"/>
+      <rect x="18" y="150" width="100" height="13" rx="6.5" fill="#E4E4E7"/>
+      <rect x="18" y="174" width="124" height="9" rx="4.5" fill="#52525B"/>
+    </g>
+
+    <g transform="translate(792 284)">
+      <rect width="166" height="212" rx="18" fill="#18181B" stroke="white" stroke-opacity="0.08"/>
+      <rect x="18" y="18" width="130" height="112" rx="14" fill="url(#cardC)"/>
+      <rect x="18" y="150" width="96" height="13" rx="6.5" fill="#E4E4E7"/>
+      <rect x="18" y="174" width="120" height="9" rx="4.5" fill="#52525B"/>
+    </g>
+
+    <g transform="translate(64 364)">
+      <rect width="150" height="106" rx="18" fill="white" fill-opacity="0.045" stroke="white" stroke-opacity="0.08"/>
+      <text x="24" y="48" fill="#FAFAFA" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">35+</text>
+      <text x="24" y="76" fill="#71717A" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.8">PROJECT</text>
+      <rect x="174" width="150" height="106" rx="18" fill="white" fill-opacity="0.045" stroke="white" stroke-opacity="0.08"/>
+      <text x="198" y="48" fill="#FAFAFA" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">3</text>
+      <text x="198" y="76" fill="#71717A" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.8">KATEGORI</text>
+      <rect x="348" width="150" height="106" rx="18" fill="white" fill-opacity="0.045" stroke="white" stroke-opacity="0.08"/>
+      <text x="372" y="48" fill="#FAFAFA" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">99%</text>
+      <text x="372" y="76" fill="#71717A" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.8">RESPONSIVE</text>
+    </g>
+  </g>
+
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M60 0H0V60" stroke="white" stroke-opacity="0.08"/>
+    </pattern>
+    <linearGradient id="cardA" x1="22" y1="22" x2="334" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0EA5E9"/>
+      <stop offset="0.52" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="cardB" x1="18" y1="18" x2="152" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10B981"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="cardC" x1="18" y1="18" x2="148" y2="130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#EF4444"/>
+    </linearGradient>
+  </defs>
+</svg>

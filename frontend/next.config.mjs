@@ -10,7 +10,17 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8000",
+      },
     ],
+  },
+  // Optimasi build
+  compiler: {
+    // Hapus console.log di production untuk performa & keamanan
+    removeConsole: process.env.NODE_ENV === "production",
   },
 };
 
