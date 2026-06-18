@@ -5,14 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Portfolio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class PortfolioController extends Controller
 {
     // 1. GET ALL PORTFOLIO
     public function index()
     {
-        $portfolios = Portfolio::latest()->get();
-        return response()->json($portfolios);
+        $portfolios = Cache::remember('threedevs_portfolios', 3600, function () {
+            return Portfolio::latest()->get();
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $portfolios
+        ]);
     }
 
     // 2. CREATE NEW (Upload Gambar)
@@ -42,6 +49,8 @@ class PortfolioController extends Controller
                 'link_demo' => $request->link_demo,
             ]);
 
+            Cache::forget('threedevs_portfolios');
+
             return response()->json(['message' => 'Portfolio berhasil ditambahkan', 'data' => $portfolio]);
         }
 
@@ -59,6 +68,8 @@ class PortfolioController extends Controller
             Storage::disk('public')->delete($relativePath);
 
             $portfolio->delete();
+            Cache::forget('threedevs_portfolios');
+
             return response()->json(['message' => 'Portfolio dihapus']);
         }
         return response()->json(['message' => 'Data tidak ditemukan'], 404);
