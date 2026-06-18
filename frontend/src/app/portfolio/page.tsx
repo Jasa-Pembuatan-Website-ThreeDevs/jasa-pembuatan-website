@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, type Transition, type Variants } from "framer-motion";
 import { ArrowUpRight, ExternalLink, Layers3, Sparkles } from "lucide-react";
 import Navbar from "@/components/sections/Navbar";
 import Footer from "@/components/sections/Footer";
-import api from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 
 const KATEGORI = ["Semua", "Landing Page", "Web App", "E-Commerce"] as const;
 type Kategori = (typeof KATEGORI)[number];
@@ -47,32 +47,20 @@ const animasiGrid = {
 
 export default function HalamanPortfolio() {
   const [filterAktif, setFilterAktif] = useState<Kategori>("Semua");
-  const [proyek, setProyek] = useState<ProyekPortfolio[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rawData, isLoading: loading } = useApi<{ status: string; data: any[] }>("/portfolios");
 
-  useEffect(() => {
-    async function fetchPortfolio() {
-      try {
-        const res = await api.get("/portfolios");
-        const data: ProyekPortfolio[] = (res.data as any[]).map((item, idx) => ({
-          id: item.id,
-          judul: item.judul,
-          kategori: item.kategori as Kategori,
-          deskripsi: item.deskripsi ?? "",
-          gambar: item.gambar?.startsWith("http") ? item.gambar : `http://localhost:8000${item.gambar}`,
-          tinggi: TINGGI_CYCLE[idx % TINGGI_CYCLE.length],
-          link_demo: item.link_demo,
-        }));
-        setProyek(data);
-      } catch {
-        // Fallback to empty
-        setProyek([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchPortfolio();
-  }, []);
+  const proyek: ProyekPortfolio[] = useMemo(() => {
+    if (!rawData?.data) return [];
+    return rawData.data.map((item, idx) => ({
+      id: item.id,
+      judul: item.judul,
+      kategori: item.kategori as Kategori,
+      deskripsi: item.deskripsi ?? "",
+      gambar: item.gambar?.startsWith("http") ? item.gambar : `http://localhost:8000${item.gambar}`,
+      tinggi: TINGGI_CYCLE[idx % TINGGI_CYCLE.length],
+      link_demo: item.link_demo,
+    }));
+  }, [rawData]);
 
   const proyekTerfilter =
     filterAktif === "Semua"
@@ -240,6 +228,7 @@ function KartuPortfolio({ proyek }: { proyek: ProyekPortfolio }) {
             src={proyek.gambar}
             alt={proyek.judul}
             fill
+            unoptimized
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />

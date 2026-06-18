@@ -153,6 +153,7 @@ export const ProductCard = ({
         <Image
           src={product.thumbnail}
           fill
+          unoptimized
           sizes="(min-width: 1024px) 480px, (min-width: 640px) 384px, 288px"
           className="absolute inset-0 h-full w-full object-cover object-left-top transition-transform duration-500 group-hover/product:scale-105"
           alt={product.title}

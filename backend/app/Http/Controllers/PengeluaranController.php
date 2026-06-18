@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PengeluaranController extends Controller
 {
@@ -14,15 +15,17 @@ class PengeluaranController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Pengeluaran::query();
+        $cacheKey = 'threedevs_expenses' . ($request->has('kategori') ? '_' . $request->kategori : '');
 
-        // Filter Kategori (Opsional)
-        if ($request->has('kategori')) {
-            $query->where('kategori', $request->kategori);
-        }
+        $expenses = Cache::remember($cacheKey, 600, function () use ($request) {
+            $query = Pengeluaran::query();
 
-        // Urutkan dari tanggal terbaru
-        $expenses = $query->orderBy('tanggal_pengeluaran', 'desc')->get();
+            if ($request->has('kategori')) {
+                $query->where('kategori', $request->kategori);
+            }
+
+            return $query->orderBy('tanggal_pengeluaran', 'desc')->get();
+        });
 
         return response()->json([
             'status' => 'success',
@@ -55,6 +58,9 @@ class PengeluaranController extends Controller
             'tanggal_pengeluaran' => $request->tanggal_pengeluaran,
             'catatan' => $request->catatan,
         ]);
+
+        Cache::forget('threedevs_expenses');
+        Cache::forget('threedevs_expense_summary');
 
         return response()->json([
             'message' => 'Pengeluaran berhasil dicatat!',
@@ -96,6 +102,9 @@ class PengeluaranController extends Controller
 
         $expense->update($request->all());
 
+        Cache::forget('threedevs_expenses');
+        Cache::forget('threedevs_expense_summary');
+
         return response()->json([
             'message' => 'Data pengeluaran berhasil diperbarui',
             'data' => $expense
@@ -115,6 +124,9 @@ class PengeluaranController extends Controller
 
         $expense->delete();
 
+        Cache::forget('threedevs_expenses');
+        Cache::forget('threedevs_expense_summary');
+
         return response()->json(['message' => 'Data berhasil dihapus']);
     }
 
@@ -124,17 +136,19 @@ class PengeluaranController extends Controller
      */
     public function expenseSummary()
     {
-        // Hitung total semua pengeluaran
-        $totalPengeluaran = Pengeluaran::sum('jumlah');
-        
-        // Hitung total per kategori (Buat Pie Chart kalau mau)
-        $perKategori = Pengeluaran::selectRaw('kategori, sum(jumlah) as total')
-            ->groupBy('kategori')
-            ->pluck('total', 'kategori');
+        $summary = Cache::remember('threedevs_expense_summary', 600, function () {
+            $totalPengeluaran = Pengeluaran::sum('jumlah');
 
-        return response()->json([
-            'total_expense' => $totalPengeluaran,
-            'detail_per_kategori' => $perKategori
-        ]);
+            $perKategori = Pengeluaran::selectRaw('kategori, sum(jumlah) as total')
+                ->groupBy('kategori')
+                ->pluck('total', 'kategori');
+
+            return [
+                'total_expense' => $totalPengeluaran,
+                'detail_per_kategori' => $perKategori
+            ];
+        });
+
+        return response()->json($summary);
     }
 }

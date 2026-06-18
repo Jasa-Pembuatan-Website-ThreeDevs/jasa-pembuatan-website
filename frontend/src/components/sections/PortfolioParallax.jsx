@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { HeroParallax } from "@/components/ui/hero-parallax";
+import api from "@/lib/api";
 
-const PORTFOLIO_ITEMS = [
+const FALLBACK_ITEMS = [
   {
     title: "Nusantara Property",
     link: "/portfolio",
@@ -97,7 +99,40 @@ const PORTFOLIO_ITEMS = [
   },
 ];
 
+function buildImageUrl(gambar) {
+  if (!gambar) return "";
+  return gambar.startsWith("http") ? gambar : `http://localhost:8000${gambar}`;
+}
+
 export default function PortfolioParallaxSection() {
+  const [items, setItems] = useState(FALLBACK_ITEMS);
+
+  useEffect(() => {
+    async function fetchPortfolio() {
+      try {
+        const res = await api.get("/portfolios");
+        const portfolios = res.data?.data ?? res.data ?? [];
+        if (portfolios.length > 0) {
+          const mapped = portfolios.map((p) => ({
+            title: p.judul,
+            link: "/portfolio",
+            thumbnail: buildImageUrl(p.gambar),
+          }));
+          // Pad with fallback items if we have fewer than 15
+          const combined = [...mapped];
+          let fallbackIdx = 0;
+          while (combined.length < 15 && fallbackIdx < FALLBACK_ITEMS.length) {
+            combined.push(FALLBACK_ITEMS[fallbackIdx]);
+            fallbackIdx++;
+          }
+          setItems(combined.slice(0, 15));
+        }
+      } catch {
+        // Keep fallback items on error
+      }
+    }
+    fetchPortfolio();
+  }, []);
   return (
     <section
       id="portfolio"
@@ -111,7 +146,7 @@ export default function PortfolioParallaxSection() {
 
       <div className="relative">
         <HeroParallax
-          products={PORTFOLIO_ITEMS}
+          products={items}
           title="Portfolio yang memberi bisnis terlihat siap dipercaya."
           description="Contoh arah visual untuk landing page, company profile, dashboard, dan e-commerce. Setiap tampilan dirancang responsif, cepat dimuat, dan punya alur konversi yang jelas."
         />

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { Plus, Trash2, X, Upload } from "lucide-react";
 import Swal from "sweetalert2";
+import { useApi } from "@/hooks/useApi";
 import api from "@/lib/api";
 
 type Portfolio = {
@@ -18,22 +19,9 @@ type Portfolio = {
 const KATEGORI_OPTIONS = ["Landing Page", "Web App", "E-Commerce"];
 
 export default function AdminPortfolioPage() {
-  const [items, setItems] = useState<Portfolio[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rawData, isLoading: loading, mutate } = useApi<any>("/portfolios");
+  const items: Portfolio[] = rawData?.data ?? rawData ?? [];
   const [showAdd, setShowAdd] = useState(false);
-
-  async function fetchPortfolio() {
-    try {
-      const res = await api.get("/portfolios");
-      setItems(res.data ?? []);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => { fetchPortfolio(); }, []);
 
   async function handleDelete(item: Portfolio) {
     const confirm = await Swal.fire({
@@ -50,7 +38,7 @@ export default function AdminPortfolioPage() {
     try {
       await api.delete(`/admin/portfolios/${item.id}`);
       Swal.fire({ icon: "success", title: "Dihapus!", timer: 1500, showConfirmButton: false });
-      fetchPortfolio();
+      mutate();
     } catch {
       Swal.fire({ icon: "error", title: "Gagal menghapus", confirmButtonColor: "#22d3ee" });
     }
@@ -63,7 +51,7 @@ export default function AdminPortfolioPage() {
       });
       Swal.fire({ icon: "success", title: "Berhasil ditambahkan!", timer: 1500, showConfirmButton: false });
       setShowAdd(false);
-      fetchPortfolio();
+      mutate();
     } catch (err: any) {
       Swal.fire({ icon: "error", title: "Gagal", text: err.response?.data?.message, confirmButtonColor: "#22d3ee" });
     }
@@ -112,6 +100,7 @@ export default function AdminPortfolioPage() {
                   src={getImageUrl(item.gambar)}
                   alt={item.judul}
                   fill
+                  unoptimized
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />

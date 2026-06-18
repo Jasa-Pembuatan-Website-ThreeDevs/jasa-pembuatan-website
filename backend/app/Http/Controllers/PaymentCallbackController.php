@@ -6,9 +6,9 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use App\Mail\OrderPaidMail;
 use App\Mail\AdminNotificationMail;
-// Buat ngecek log error nanti
 
 class PaymentCallbackController extends Controller
 {
@@ -53,6 +53,16 @@ class PaymentCallbackController extends Controller
                         'sisa_tagihan'      => 0,
                         'status_pengerjaan' => 'proses',
                     ]);
+
+                    // Invalidate related caches
+                    Cache::forget('threedevs_orders_admin');
+                    Cache::forget('threedevs_income_summary');
+                    Cache::forget('threedevs_analytics_top_categories');
+                    // Clear analytics caches for common day ranges
+                    foreach ([7, 14, 30, 60, 90] as $days) {
+                        Cache::forget("threedevs_analytics_sales_{$days}");
+                        Cache::forget("threedevs_analytics_incexp_{$days}");
+                    }
 
                     // 2. KIRIM EMAIL (Logic Baru Disini) 🚀
                     try {

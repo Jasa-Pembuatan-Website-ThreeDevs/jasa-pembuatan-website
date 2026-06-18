@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->date('due_date')->nullable()->after('status');
+            $table->date('due_date')->nullable();
             $table->boolean('is_recurring')->default(false)->after('due_date');
         });
     }

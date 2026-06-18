@@ -334,7 +334,7 @@ export const OptionKey = ({ className }) => {
 const ThreeDevsLogo = () => {
   return (
     <div className="flex flex-col items-center justify-center">
-    <image src="/threedevs-logo.png" alt="ThreeDevs Logo" width={120} height={120} className="mb-1" />
+    <Image src="/threedevs-logo.png" alt="ThreeDevs Logo" width={120} height={120} className="mb-1" />
    <h1>ThreeDevs</h1>
    </div>
   );

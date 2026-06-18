@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -9,33 +8,15 @@ import {
   Briefcase,
   AlertCircle,
 } from "lucide-react";
-import api from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 
 const formatRupiah = (n: number) =>
   `Rp ${(n ?? 0).toLocaleString("id-ID")}`;
 
 export default function AdminDashboardPage() {
-  const [income, setIncome] = useState<any>(null);
-  const [expense, setExpense] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetch() {
-      try {
-        const [incRes, expRes] = await Promise.all([
-          api.get("/admin/income-summary"),
-          api.get("/admin/expense-summary"),
-        ]);
-        setIncome(incRes.data);
-        setExpense(expRes.data);
-      } catch {
-        // silent
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetch();
-  }, []);
+  const { data: income, isLoading: loadingIncome } = useApi<any>("/admin/income-summary");
+  const { data: expense, isLoading: loadingExpense } = useApi<any>("/admin/expense-summary");
+  const loading = loadingIncome || loadingExpense;
 
   const totalIncome = income?.total_income ?? 0;
   const totalExpense = expense?.total_expense ?? 0;

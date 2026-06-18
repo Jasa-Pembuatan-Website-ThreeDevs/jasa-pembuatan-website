@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Pencil, Trash2, X, Filter } from "lucide-react";
 import Swal from "sweetalert2";
+import { useApi } from "@/hooks/useApi";
 import api from "@/lib/api";
 
 const formatRupiah = (n: number) => `Rp ${(n ?? 0).toLocaleString("id-ID")}`;
@@ -33,29 +34,17 @@ const emptyForm: ExpenseForm = {
 };
 
 export default function AdminExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [summary, setSummary] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [filterKategori, setFilterKategori] = useState("");
   const [modalData, setModalData] = useState<{ mode: "add" } | { mode: "edit"; data: Expense } | null>(null);
 
-  async function fetchData() {
-    try {
-      const params = filterKategori ? { kategori: filterKategori } : {};
-      const [expRes, sumRes] = await Promise.all([
-        api.get("/admin/expenses", { params }),
-        api.get("/admin/expense-summary"),
-      ]);
-      setExpenses(expRes.data.data ?? []);
-      setSummary(sumRes.data);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  }
+  const expensesPath = useMemo(
+    () => filterKategori ? `/admin/expenses?kategori=${filterKategori}` : "/admin/expenses",
+    [filterKategori]
+  );
 
-  useEffect(() => { fetchData(); }, [filterKategori]);
+  const { data: expResponse, isLoading: loading, mutate } = useApi<{ data: Expense[] }>(expensesPath);
+  const { data: summary, mutate: mutateSummary } = useApi<any>("/admin/expense-summary");
+  const expenses = expResponse?.data ?? [];
 
   async function handleDelete(exp: Expense) {
     const confirm = await Swal.fire({
@@ -72,7 +61,8 @@ export default function AdminExpensesPage() {
     try {
       await api.delete(`/admin/expenses/${exp.id}`);
       Swal.fire({ icon: "success", title: "Dihapus!", timer: 1500, showConfirmButton: false });
-      fetchData();
+      mutate();
+      mutateSummary();
     } catch {
       Swal.fire({ icon: "error", title: "Gagal menghapus", confirmButtonColor: "#22d3ee" });
     }
@@ -87,7 +77,8 @@ export default function AdminExpensesPage() {
       }
       Swal.fire({ icon: "success", title: "Tersimpan!", timer: 1500, showConfirmButton: false });
       setModalData(null);
-      fetchData();
+      mutate();
+      mutateSummary();
     } catch (err: any) {
       Swal.fire({ icon: "error", title: "Gagal", text: err.response?.data?.message, confirmButtonColor: "#22d3ee" });
     }

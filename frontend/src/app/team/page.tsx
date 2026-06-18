@@ -29,7 +29,7 @@ const teamMembers: TeamMember[] = [
     name: "Arya Prana Jaya",
     role: "Backend Leader",
     title: "Backend Lead",
-    image: "https://i.pravatar.cc/900?img=15",
+    image: "/arya.jpeg",
     icon: <Server className="h-4 w-4" />,
     className: "lg:row-span-2",
   },
@@ -37,8 +37,7 @@ const teamMembers: TeamMember[] = [
     name: "Dannys Martha Favrillia",
     role: "Frontend Developer",
     title: "The Unstoppable Frontend",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=900&auto=format&fit=crop&q=85",
+    image: "/dannys.jpeg",
     icon: <Code2 className="h-4 w-4" />,
     className: "lg:row-span-2",
   },
@@ -47,7 +46,7 @@ const teamMembers: TeamMember[] = [
     role: "Frontend Developer",
     title: "The UI/UX Enthusiast",
     image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900&auto=format&fit=crop&q=85",
+      "/loren.jpeg",
     icon: <Layers3 className="h-4 w-4" />,
   },
   {
@@ -55,7 +54,7 @@ const teamMembers: TeamMember[] = [
     role: "Frontend Developer",
     title: "The Frontend Energy",
     image:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=900&auto=format&fit=crop&q=85",
+      "/akbar.jpeg",
     icon: <Sparkles className="h-4 w-4" />,
   },
   {

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import Swal from "sweetalert2";
+import { useApi } from "@/hooks/useApi";
 import api from "@/lib/api";
 
 const formatRupiah = (n: number) => `Rp ${(n ?? 0).toLocaleString("id-ID")}`;
@@ -26,23 +27,10 @@ const STATUS_BAYAR = ["belum_bayar", "sudah_dp", "lunas"] as const;
 const STATUS_KERJA = ["pending", "proses", "revisi", "selesai"] as const;
 
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: ordersResponse, isLoading: loading, mutate } = useApi<{ data: Order[] }>("/admin/orders");
+  const orders = ordersResponse?.data ?? [];
   const [editOrder, setEditOrder] = useState<Order | null>(null);
   const [showManual, setShowManual] = useState(false);
-
-  async function fetchOrders() {
-    try {
-      const res = await api.get("/admin/orders");
-      setOrders(res.data.data ?? []);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => { fetchOrders(); }, []);
 
   async function handleDelete(order: Order) {
     const confirm = await Swal.fire({
@@ -59,7 +47,7 @@ export default function AdminOrdersPage() {
     try {
       await api.delete(`/admin/orders/${order.id}`);
       Swal.fire({ icon: "success", title: "Dihapus!", timer: 1500, showConfirmButton: false });
-      fetchOrders();
+      mutate();
     } catch {
       Swal.fire({ icon: "error", title: "Gagal menghapus", confirmButtonColor: "#22d3ee" });
     }
@@ -70,7 +58,7 @@ export default function AdminOrdersPage() {
       await api.put(`/admin/orders/${editOrder!.id}`, data);
       Swal.fire({ icon: "success", title: "Berhasil!", timer: 1500, showConfirmButton: false });
       setEditOrder(null);
-      fetchOrders();
+      mutate();
     } catch (err: any) {
       Swal.fire({ icon: "error", title: "Gagal update", text: err.response?.data?.message, confirmButtonColor: "#22d3ee" });
     }
@@ -81,7 +69,7 @@ export default function AdminOrdersPage() {
       await api.post("/admin/orders/manual", data);
       Swal.fire({ icon: "success", title: "Order ditambahkan!", timer: 1500, showConfirmButton: false });
       setShowManual(false);
-      fetchOrders();
+      mutate();
     } catch (err: any) {
       Swal.fire({ icon: "error", title: "Gagal", text: err.response?.data?.message, confirmButtonColor: "#22d3ee" });
     }

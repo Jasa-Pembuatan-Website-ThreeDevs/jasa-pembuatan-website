@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Testimonial;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class TestimonialController extends Controller
 {
     // 1. PUBLIC: Tampilkan Review di Home (Cuma yang di-approve admin)
     public function index()
     {
-        $reviews = Testimonial::where('is_displayed', true)->latest()->get();
+        $reviews = Cache::remember('threedevs_testimonials', 3600, function () {
+            return Testimonial::where('is_displayed', true)->latest()->get();
+        });
+
         return response()->json($reviews);
     }
 
@@ -43,6 +47,8 @@ class TestimonialController extends Controller
             'isi_ulasan'     => $request->isi_ulasan,
             'is_displayed'   => true, // Ubah jadi false kalau mau moderasi admin dulu
         ]);
+
+        Cache::forget('threedevs_testimonials');
 
         return response()->json(['message' => 'Terima kasih atas ulasannya! ⭐', 'data' => $review]);
     }

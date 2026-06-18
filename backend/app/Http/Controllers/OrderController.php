@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use App\Mail\OrderPaidMail;
 
 class OrderController extends Controller
@@ -16,13 +17,17 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Order::query();
+        $cacheKey = 'threedevs_orders_admin' . ($request->has('status') ? '_' . $request->status : '');
 
-        if ($request->has('status')) {
-            $query->where('status_pembayaran', $request->status);
-        }
+        $orders = Cache::remember($cacheKey, 600, function () use ($request) {
+            $query = Order::query();
 
-        $orders = $query->latest()->get();
+            if ($request->has('status')) {
+                $query->where('status_pembayaran', $request->status);
+            }
+
+            return $query->latest()->get();
+        });
 
         return response()->json([
             'status' => 'success',
@@ -79,6 +84,9 @@ class OrderController extends Controller
                 'snap_token'        => $snapToken,
             ]);
 
+            Cache::forget('threedevs_orders_admin');
+            Cache::forget('threedevs_income_summary');
+
             return response()->json([
                 'status' => 'success',
                 'token'  => $snapToken,
@@ -132,6 +140,9 @@ class OrderController extends Controller
             } catch (\Exception $e) {}
         }
 
+        Cache::forget('threedevs_orders_admin');
+        Cache::forget('threedevs_income_summary');
+
         return response()->json([
             'message' => 'Order manual berhasil dicatat, King!',
             'data'    => $order,
@@ -151,6 +162,9 @@ class OrderController extends Controller
         // Now using validated data, preventing mass assignment vulnerabilities.
         $validatedData = $request->validated();
         $order->update($validatedData);
+
+        Cache::forget('threedevs_orders_admin');
+        Cache::forget('threedevs_income_summary');
 
         return response()->json([
             'message' => 'Data berhasil diperbarui',
@@ -182,6 +196,10 @@ class OrderController extends Controller
         }
 
         $order->delete();
+
+        Cache::forget('threedevs_orders_admin');
+        Cache::forget('threedevs_income_summary');
+
         return response()->json(['message' => 'Data berhasil dihapus']);
     }
 
@@ -190,20 +208,24 @@ class OrderController extends Controller
      */
     public function incomeSummary()
     {
-        $totalPemasukan = Order::where('status_pembayaran', 'lunas')->sum('total_harga');
-        $totalDP        = Order::where('status_pembayaran', 'sudah_dp')->sum('total_harga') * 0.5;
-        $grandTotal     = $totalPemasukan + $totalDP;
+        $summary = Cache::remember('threedevs_income_summary', 600, function () {
+            $totalPemasukan = Order::where('status_pembayaran', 'lunas')->sum('total_harga');
+            $totalDP        = Order::where('status_pembayaran', 'sudah_dp')->sum('total_harga') * 0.5;
+            $grandTotal     = $totalPemasukan + $totalDP;
 
-        $countPending = Order::where('status_pembayaran', 'belum_bayar')->count();
-        $countActive  = Order::where('status_pengerjaan', 'proses')->count();
+            $countPending = Order::where('status_pembayaran', 'belum_bayar')->count();
+            $countActive  = Order::where('status_pengerjaan', 'proses')->count();
 
-        return response()->json([
-            'total_income' => $grandTotal,
-            'stats'        => [
-                'pending_payment' => $countPending,
-                'active_projects' => $countActive,
-            ],
-        ]);
+            return [
+                'total_income' => $grandTotal,
+                'stats'        => [
+                    'pending_payment' => $countPending,
+                    'active_projects' => $countActive,
+                ],
+            ];
+        });
+
+        return response()->json($summary);
     }
 
     /**
@@ -286,6 +308,9 @@ class OrderController extends Controller
             $order->snap_token = $snapToken;
             $order->save();
 
+            Cache::forget('threedevs_orders_admin');
+            Cache::forget('threedevs_income_summary');
+
             return response()->json(['status' => 'success', 'token' => $snapToken]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -307,6 +332,10 @@ class OrderController extends Controller
 
         if ($order) {
             $order->delete();
+
+            Cache::forget('threedevs_orders_admin');
+            Cache::forget('threedevs_income_summary');
+
             return response()->json(['message' => 'Order berhasil dibatalkan']);
         }
 
@@ -335,6 +364,8 @@ public function uploadHandover(Request $request, $id)
             // Simpan path ke database
             $order->handover_file = '/storage/' . $path;
             $order->save();
+
+            Cache::forget('threedevs_orders_admin');
 
             return response()->json([
                 'message' => 'File aset berhasil diupload!',
