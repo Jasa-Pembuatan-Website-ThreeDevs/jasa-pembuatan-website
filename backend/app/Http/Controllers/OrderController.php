@@ -8,6 +8,7 @@ use Midtrans\Config;
 use Midtrans\Snap;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\OrderPaidMail;
 
 class OrderController extends Controller
@@ -343,10 +344,10 @@ class OrderController extends Controller
     }
 
 
-public function uploadHandover(Request $request, $id)
+    public function uploadHandover(Request $request, $id)
     {
         $request->validate([
-            'file' => 'required|file|max:10240', // Max 10MB (Sesuaikan kebutuhan)
+            'file' => 'required|file|mimes:pdf,doc,docx,zip,rar|max:10240',
         ]);
 
         $order = Order::find($id);
@@ -356,19 +357,23 @@ public function uploadHandover(Request $request, $id)
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            // Simpan ke folder public/handovers
-            // Nama file unik: HANDOVER-{OrderID}-{Time}.ext
+
+            if ($order->handover_file) {
+                $oldPath = str_replace('/storage/', '', $order->handover_file);
+                Storage::disk('public')->delete($oldPath);
+            }
+
             $filename = 'HANDOVER-' . $order->order_id . '-' . time() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('handovers', $filename, 'public');
 
-            // Simpan path ke database
             $order->handover_file = '/storage/' . $path;
             $order->save();
 
             Cache::forget('threedevs_orders_admin');
+            Cache::forget('threedevs_income_summary');
 
             return response()->json([
-                'message' => 'File aset berhasil diupload!',
+                'message' => 'File pengesahan project berhasil diupload!',
                 'data' => $order
             ]);
         }

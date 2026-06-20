@@ -1,7 +1,7 @@
 import Navbar from "@/components/sections/Navbar";
 import HeroSection from "@/components/sections/Hero";
 import Footer from "@/components/sections/Footer";
-import LazyHomeSections from "@/components/sections/LazyHomeSections";
+import HomeStaticSections from "@/components/sections/HomeStaticSections";
 
 export default function Page() {
   return (
@@ -9,7 +9,7 @@ export default function Page() {
       <Navbar />
       <main>
         <HeroSection />
-        <LazyHomeSections />
+        <HomeStaticSections />
       </main>
       <Footer />
     </div>

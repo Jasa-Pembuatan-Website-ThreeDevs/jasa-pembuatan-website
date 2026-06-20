@@ -24,7 +24,10 @@ const NAV_ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [adminName, setAdminName] = useState("");
+  const [adminName] = useState(() => {
+    if (typeof window === "undefined") return "Admin";
+    return localStorage.getItem("admin_name") ?? "Admin";
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Skip layout for login page
@@ -33,11 +36,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (isLoginPage) return;
     const token = localStorage.getItem("admin_token");
-    const name = localStorage.getItem("admin_name");
     if (!token) {
       router.replace("/admin/login");
-    } else {
-      setAdminName(name ?? "Admin");
     }
   }, [isLoginPage, router]);
 

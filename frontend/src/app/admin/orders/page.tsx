@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Download, FileUp, Plus, Pencil, Trash2, X } from "lucide-react";
 import Swal from "sweetalert2";
 import { useApi } from "@/hooks/useApi";
 import api from "@/lib/api";
@@ -20,11 +20,19 @@ type Order = {
   status_pengerjaan: string;
   progress: number;
   sisa_tagihan: number;
+  handover_file?: string | null;
   created_at: string;
 };
 
 const STATUS_BAYAR = ["belum_bayar", "sudah_dp", "lunas"] as const;
 const STATUS_KERJA = ["pending", "proses", "revisi", "selesai"] as const;
+const BACKEND_ORIGIN = String(api.defaults.baseURL ?? "").replace(/\/api\/?$/, "");
+
+function buildFileUrl(path?: string | null) {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${BACKEND_ORIGIN}${path}`;
+}
 
 export default function AdminOrdersPage() {
   const { data: ordersResponse, isLoading: loading, mutate } = useApi<{ data: Order[] }>("/admin/orders");
@@ -73,6 +81,49 @@ export default function AdminOrdersPage() {
     } catch (err: any) {
       Swal.fire({ icon: "error", title: "Gagal", text: err.response?.data?.message, confirmButtonColor: "#22d3ee" });
     }
+  }
+
+  async function handleUploadHandover(order: Order) {
+    const result = await Swal.fire<File>({
+      title: "Upload File Pengesahan",
+      text: "Upload PDF/DOC/ZIP/RAR maksimal 10MB untuk arsip project client.",
+      input: "file",
+      inputAttributes: {
+        accept: ".pdf,.doc,.docx,.zip,.rar",
+        "aria-label": "Upload file pengesahan project",
+      },
+      showCancelButton: true,
+      confirmButtonText: order.handover_file ? "Ganti File" : "Upload",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#22d3ee",
+      showLoaderOnConfirm: true,
+      preConfirm: async (file) => {
+        if (!file) {
+          Swal.showValidationMessage("Pilih file terlebih dahulu.");
+          return false;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          await api.post(`/admin/orders/${order.id}/handover`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          return file;
+        } catch (err: any) {
+          const message = err.response?.data?.message || "Upload gagal.";
+          Swal.showValidationMessage(message);
+          return false;
+        }
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+    });
+
+    if (!result.isConfirmed) return;
+
+    Swal.fire({ icon: "success", title: "File tersimpan", timer: 1500, showConfirmButton: false });
+    mutate();
   }
 
   function badge(text: string, color: string) {
@@ -152,6 +203,29 @@ export default function AdminOrdersPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
+                    <button
+                      onClick={() => handleUploadHandover(o)}
+                      className={`rounded-lg p-1.5 transition ${
+                        o.handover_file
+                          ? "text-emerald-400 hover:bg-emerald-500/10"
+                          : "text-zinc-500 hover:bg-white/[0.06] hover:text-cyan-300"
+                      }`}
+                      title={o.handover_file ? "Ganti file pengesahan" : "Upload file pengesahan"}
+                    >
+                      <FileUp className="h-3.5 w-3.5" />
+                    </button>
+                    {o.progress >= 100 && o.handover_file && (
+                      <a
+                        href={buildFileUrl(o.handover_file)}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        className="rounded-lg p-1.5 text-cyan-300 transition hover:bg-cyan-500/10"
+                        title="Download file pengesahan"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                      </a>
+                    )}
                     <button onClick={() => setEditOrder(o)} className="rounded-lg p-1.5 text-zinc-500 hover:bg-white/[0.06] hover:text-cyan-300 transition">
                       <Pencil className="h-3.5 w-3.5" />
                     </button>

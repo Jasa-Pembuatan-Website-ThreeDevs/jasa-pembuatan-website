@@ -86,7 +86,7 @@ export default function AdminPortfolioPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] py-16 text-center text-zinc-600">
-          Belum ada portfolio. Klik "Tambah Project" untuk memulai.
+          Belum ada portfolio. Klik &quot;Tambah Project&quot; untuk memulai.
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

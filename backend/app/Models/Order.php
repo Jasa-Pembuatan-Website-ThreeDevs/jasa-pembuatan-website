@@ -20,6 +20,7 @@ class Order extends Model
         'sisa_tagihan',
         'snap_token',
         'progress',
+        'handover_file',
     ];
 
     protected $casts = [

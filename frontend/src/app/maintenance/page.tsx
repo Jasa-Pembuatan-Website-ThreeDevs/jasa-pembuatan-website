@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { RefreshCcw, Wifi, WifiOff, Server, ShieldCheck } from "lucide-react";
 import api from "@/lib/api";
@@ -49,10 +50,15 @@ export default function MaintenancePage() {
   }, []);
 
   useEffect(() => {
-    checkConnection();
+    const initialCheck = setTimeout(() => {
+      void checkConnection();
+    }, 0);
     // Auto-retry every 15 seconds
     const interval = setInterval(checkConnection, 15_000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialCheck);
+      clearInterval(interval);
+    };
   }, [checkConnection]);
 
   const handleRetry = () => {
@@ -229,12 +235,12 @@ export default function MaintenancePage() {
           </button>
 
           {status === "online" && (
-            <a
+            <Link
               href="/"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/10 transition-shadow hover:shadow-cyan-500/20"
             >
               Kembali ke Beranda
-            </a>
+            </Link>
           )}
         </motion.div>
 

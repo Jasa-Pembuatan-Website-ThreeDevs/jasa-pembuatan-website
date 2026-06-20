@@ -20,7 +20,7 @@ export const NAV_LINKS = [
 export const PLANS = [
   {
     name: "Basic",
-    price: "1.5",
+    price: "1",
     unit: "Juta",
     desc: "Untuk landing page & profil pribadi.",
     features: [
@@ -34,7 +34,7 @@ export const PLANS = [
   },
   {
     name: "Bisnis",
-    price: "3.5",
+    price: "2.99",
     unit: "Juta",
     desc: "Ideal untuk UMKM yang serius online.",
     features: [
@@ -49,7 +49,7 @@ export const PLANS = [
   },
   {
     name: "Pro",
-    price: "7",
+    price: "5.99",
     unit: "Juta",
     desc: "Solusi lengkap enterprise & e-commerce.",
     features: [

@@ -26,7 +26,9 @@ export function useBackendStatus() {
   }, []);
 
   useEffect(() => {
-    check(); // initial check on mount
+    const initialCheck = setTimeout(() => {
+      void check();
+    }, 0);
 
     intervalRef.current = setInterval(check, CHECK_INTERVAL);
 
@@ -37,6 +39,7 @@ export function useBackendStatus() {
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
+      clearTimeout(initialCheck);
       if (intervalRef.current) clearInterval(intervalRef.current);
       document.removeEventListener("visibilitychange", onVisibility);
     };

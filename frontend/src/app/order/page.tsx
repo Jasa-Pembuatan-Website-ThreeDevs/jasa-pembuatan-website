@@ -149,11 +149,19 @@ export default function OrderPage() {
       (window as any).snap.pay(snapToken, {
         onSuccess: async (result: any) => {
           Swal.fire({ icon: "success", title: "Pembayaran Berhasil!", text: "Pesanan Anda sedang diproses.", confirmButtonColor: "#22d3ee" });
-          window.location.href = "/track-order";
+          const query = new URLSearchParams({
+            invoice: orderData.order_id,
+            phone: formData.no_hp,
+          });
+          window.location.href = `/order-success?${query.toString()}`;
         },
         onPending: () => {
           Swal.fire({ icon: "info", title: "Menunggu Pembayaran", text: `Invoice: ${orderData.order_id}. Selesaikan pembayaran Anda.`, confirmButtonColor: "#22d3ee" });
-          window.location.href = "/track-order";
+          const query = new URLSearchParams({
+            invoice: orderData.order_id,
+            phone: formData.no_hp,
+          });
+          window.location.href = `/track-order?${query.toString()}`;
         },
         onError: () => {
           Swal.fire({ icon: "error", title: "Pembayaran Gagal", text: "Silakan coba lagi.", confirmButtonColor: "#22d3ee" });

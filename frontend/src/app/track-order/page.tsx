@@ -1,12 +1,14 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarDays,
   Check,
   CircleDollarSign,
   Code2,
+  Download,
   FileText,
   Layers3,
   Search,
@@ -36,8 +38,17 @@ type OrderData = {
   status_pengerjaan: string;
   progress: number;
   sisa_tagihan: number;
+  handover_file?: string | null;
   created_at: string;
 };
+
+const BACKEND_ORIGIN = String(api.defaults.baseURL ?? "").replace(/\/api\/?$/, "");
+
+function buildFileUrl(path?: string | null) {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${BACKEND_ORIGIN}${path}`;
+}
 
 function buildTimeline(order: OrderData): TimelineItem[] {
   const p = order.progress ?? 0;
@@ -77,8 +88,21 @@ const fadeUp = {
 };
 
 export default function TrackOrderPage() {
-  const [trackingCode, setTrackingCode] = useState("");
-  const [phone, setPhone] = useState("");
+  return (
+    <Suspense fallback={<TrackOrderFallback />}>
+      <TrackOrderContent />
+    </Suspense>
+  );
+}
+
+function TrackOrderContent() {
+  const searchParams = useSearchParams();
+  const [trackingCode, setTrackingCode] = useState(
+    () => searchParams.get("invoice")?.trim() || "",
+  );
+  const [phone, setPhone] = useState(
+    () => searchParams.get("phone")?.trim() || "",
+  );
   const [hasSearched, setHasSearched] = useState(false);
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -254,12 +278,51 @@ export default function TrackOrderPage() {
                 </div>
 
                 <StatusTimeline items={buildTimeline(orderData)} />
+
+                {orderData.progress >= 100 && orderData.handover_file && (
+                  <div className="mt-10 rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-5">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-emerald-200">
+                          Project selesai
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-zinc-500">
+                          File pengesahan atau handover project sudah tersedia.
+                        </p>
+                      </div>
+                      <a
+                        href={buildFileUrl(orderData.handover_file)}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-emerald-300 px-4 text-sm font-semibold text-zinc-950 transition-colors hover:bg-emerald-200"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download File
+                      </a>
+                    </div>
+                  </div>
+                )}
               </section>
             </motion.div>
           )}
         </AnimatePresence>
       </section>
 
+      <Footer />
+    </main>
+  );
+}
+
+function TrackOrderFallback() {
+  return (
+    <main className="min-h-screen bg-zinc-950 text-zinc-100">
+      <Navbar />
+      <section className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 pt-32">
+        <div className="rounded-lg border border-white/10 bg-white/[0.035] px-6 py-4 text-sm text-zinc-500">
+          Memuat tracking order...
+        </div>
+      </section>
       <Footer />
     </main>
   );
